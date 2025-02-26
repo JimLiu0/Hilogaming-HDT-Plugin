@@ -143,11 +143,11 @@
     <comment>Text for the Settings =&gt; Position Unlock Button</comment>
   </data>
   <data name="TextDescription" xml:space="preserve">
-    <value>A Plugin Template</value>
+    <value>Collects BGs game data to use on hilogaming.me</value>
     <comment>Give folks the gist of what they can expect</comment>
   </data>
   <data name="TextName" xml:space="preserve">
-    <value>BattlegroundsGameCollection</value>
+    <value>Hilo BGs data collector</value>
     <comment>Name it something Snazzy</comment>
   </data>
 </root>

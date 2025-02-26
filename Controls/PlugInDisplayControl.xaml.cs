@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -45,7 +44,7 @@ namespace BattlegroundsGameCollection.Controls
 
             this.Visibility = System.Windows.Visibility.Visible;
             this.LblTextArea1.Content = card.Name;
-            this.LblTextArea2.Content = card.Artist;
+            this.LblTextArea2.Content = card.Cost;
         }
     }
 }

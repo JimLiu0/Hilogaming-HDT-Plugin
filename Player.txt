@@ -1,0 +1,1268 @@
+#region Assembly HearthstoneDeckTracker, Version=1.41.4.6999, Culture=neutral, PublicKeyToken=null
+// C:\Users\jimli\AppData\Local\HearthstoneDeckTracker\app-1.41.4\HearthstoneDeckTracker.exe
+// Decompiled with ICSharpCode.Decompiler 8.1.1.7464
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using HearthDb.Enums;
+using Hearthstone_Deck_Tracker.Annotations;
+using Hearthstone_Deck_Tracker.Controls.Overlay.Constructed.Mulligan;
+using Hearthstone_Deck_Tracker.Hearthstone.CardExtraInfo;
+using Hearthstone_Deck_Tracker.Hearthstone.Entities;
+using Hearthstone_Deck_Tracker.Utility.Extensions;
+using Hearthstone_Deck_Tracker.Utility.Logging;
+using HSReplay.Responses;
+using NuGet;
+
+namespace Hearthstone_Deck_Tracker.Hearthstone;
+
+public class Player : INotifyPropertyChanged
+{
+    private readonly IGame _game;
+
+    public static Deck? KnownOpponentDeck;
+
+    private IEnumerable<SingleCardStats>? _mulliganCardStats;
+
+    public string? Name { get; set; }
+
+    public string? OriginalClass { get; set; }
+
+    public string? CurrentClass { get; set; }
+
+    public int Id { get; set; }
+
+    public int Fatigue { get; set; }
+
+    public bool IsLocalPlayer { get; }
+
+    public int SpellsPlayedCount => SpellsPlayedCards.Count;
+
+    public List<Entity> SpellsPlayedCards { get; private set; } = new List<Entity>();
+
+
+    public List<Entity> SpellsPlayedInFriendlyCharacters { get; private set; } = new List<Entity>();
+
+
+    public List<Entity> SpellsPlayedInOpponentCharacters { get; private set; } = new List<Entity>();
+
+
+    public List<Entity> CardsPlayedThisMatch { get; } = new List<Entity>();
+
+
+    public List<Entity> CardsPlayedThisTurn { get; private set; } = new List<Entity>();
+
+
+    public List<Entity> CardsPlayedLastTurn { get; private set; } = new List<Entity>();
+
+
+    public List<string?> LaunchedStarships { get; private set; } = new List<string>();
+
+
+    public List<Entity> StartingHand { get; private set; } = new List<Entity>();
+
+
+    public bool IsPlayingWhizbang { get; set; }
+
+    public int PogoHopperPlayedCount { get; private set; }
+
+    public Entity? LastDiedMinionCard => DeadMinionsCards.LastOrDefault();
+
+    public List<Entity> DeadMinionsCards { get; } = new List<Entity>();
+
+
+    public string? LastDrawnCardId { get; set; }
+
+    public int LibramReductionCount { get; private set; }
+
+    public HashSet<SpellSchool> PlayedSpellSchools { get; private set; } = new HashSet<SpellSchool>();
+
+
+    public int AbyssalCurseCount { get; private set; }
+
+    public List<Entity> SecretsTriggeredCards { get; } = new List<Entity>();
+
+
+    public bool HasCoin => Hand.Any((Entity e) => e.IsTheCoin);
+
+    public int HandCount => Hand.Count();
+
+    public int DeckCount => Deck.Count();
+
+    public IEnumerable<Entity> PlayerEntities => _game.Entities.Values.Where((Entity x) => !x.Info.HasOutstandingTagChanges && x.IsControlledBy(Id));
+
+    public IEnumerable<Entity> RevealedEntities => from x in _game.Entities.Values
+                                                   where !x.Info.HasOutstandingTagChanges && (x.IsControlledBy(Id) || x.Info.OriginalController == Id)
+                                                   where x.HasCardId
+                                                   where !x.Info.InGraveardAtStartOfGame || !x.IsInGraveyard || (IsLocalPlayer && _game.IsMulliganDone)
+                                                   select x;
+
+    public IEnumerable<Entity> Hand => PlayerEntities.Where((Entity x) => x.IsInHand);
+
+    public IEnumerable<Entity> Board => PlayerEntities.Where((Entity x) => x.IsInPlay);
+
+    public IEnumerable<Entity> Deck => PlayerEntities.Where((Entity x) => x.IsInDeck);
+
+    public IEnumerable<Entity> Graveyard => PlayerEntities.Where((Entity x) => x.IsInGraveyard);
+
+    public IEnumerable<Entity> SecretZone => PlayerEntities.Where((Entity x) => x.IsInSecret);
+
+    public IEnumerable<Entity> Secrets => PlayerEntities.Where((Entity x) => x.IsInSecret && x.IsSecret);
+
+    public IEnumerable<Entity> Quests => PlayerEntities.Where((Entity x) => x.IsInSecret && (x.IsQuest || x.IsSideQuest));
+
+    public IEnumerable<Entity> Trinkets => Board.Where((Entity x) => x.IsBattlegroundsTrinket);
+
+    public IEnumerable<Entity> QuestRewards => Board.Where((Entity x) => x.IsBgsQuestReward);
+
+    public IEnumerable<Entity> Minions => Board.Where((Entity x) => x.IsMinion);
+
+    public IEnumerable<Entity> Objectives => PlayerEntities.Where((Entity x) => x.IsInSecret && x.IsObjective);
+
+    public IEnumerable<Entity> SetAside => PlayerEntities.Where((Entity x) => x.IsInSetAside);
+
+    public List<PredictedCard> InDeckPredictions { get; } = new List<PredictedCard>();
+
+
+    public Entity? Hero => Board.FirstOrDefault((Entity x) => x.IsHero);
+
+    public HashSet<string> PastHeroPowers { get; } = new HashSet<string>();
+
+
+    public IEnumerable<Card> KnownCardsInDeck => (from x in Deck
+                                                  where x.HasCardId
+                                                  select x into ce
+                                                  group ce by new
+                                                  {
+                                                      CardId = ce.CardId,
+                                                      Created = (ce.Info.Created || ce.Info.Stolen),
+                                                      ExtraInfo = ce.Info.ExtraInfo
+                                                  }).Select(g =>
+                                              {
+                                                  Card cardFromId = Database.GetCardFromId(g.Key.CardId);
+                                                  if (cardFromId == null)
+                                                  {
+                                                      return null;
+                                                  }
+
+                                                  cardFromId.ControllerPlayer = this;
+                                                  cardFromId.Count = g.Count();
+                                                  cardFromId.IsCreated = g.Key.Created;
+                                                  cardFromId.Jousted = true;
+                                                  cardFromId.ExtraInfo = g.Key.ExtraInfo?.Clone() as ICardExtraInfo;
+                                                  return cardFromId;
+                                              }).WhereNotNull().ToList();
+
+    public IEnumerable<Card> RevealedCards => (from x in RevealedEntities
+                                               where x != null && !string.IsNullOrEmpty(x.CardId) && (!x.Info.Created || x.Info.OriginalEntityWasCreated == false) && x.IsPlayableCard && ((!x.IsInDeck && (!x.Info.Stolen || x.Info.OriginalController == Id)) || (x.Info.Stolen && x.Info.OriginalController == Id))
+                                               group x by new
+                                               {
+                                                   CardId = x.CardId,
+                                                   Stolen = (x.Info.Stolen && x.Info.OriginalController != Id)
+                                               }).Select(x =>
+                                           {
+                                               Card cardFromId = Database.GetCardFromId(x.Key.CardId);
+                                               if (cardFromId == null)
+                                               {
+                                                   return null;
+                                               }
+
+                                               cardFromId.ControllerPlayer = this;
+                                               cardFromId.Count = x.Count();
+                                               cardFromId.IsCreated = x.Key.Stolen;
+                                               cardFromId.HighlightInHand = x.Any((Entity c) => c.IsInHand && c.IsControlledBy(Id));
+                                               return cardFromId;
+                                           }).WhereNotNull();
+
+    public IEnumerable<Card> CreatedCardsInHand => (from x in Hand
+                                                    where x != null && !string.IsNullOrEmpty(x.CardId) && (x.Info.Created || x.Info.Stolen)
+                                                    group x by x.CardId).Select(delegate (IGrouping<string, Entity> x)
+                                                {
+                                                    Card cardFromId = Database.GetCardFromId(x.Key);
+                                                    if (cardFromId == null)
+                                                    {
+                                                        return null;
+                                                    }
+
+                                                    cardFromId.ControllerPlayer = this;
+                                                    cardFromId.Count = x.Count();
+                                                    cardFromId.IsCreated = true;
+                                                    cardFromId.HighlightInHand = true;
+                                                    return cardFromId;
+                                                }).WhereNotNull();
+
+    public List<Card> PlayerCardList => GetPlayerCardList(Config.Instance.RemoveCardsFromDeck, Config.Instance.HighlightCardsInHand, Config.Instance.ShowPlayerGet);
+
+    public List<Sideboard> PlayerSideboardsDict => GetPlayerSideboards(Config.Instance.RemoveCardsFromDeck);
+
+    public List<Card> OpponentCardList => GetOpponentCardList(Config.Instance.RemoveCardsFromDeck, Config.Instance.HighlightCardsInHand, Config.Instance.ShowPlayerGet);
+
+    public IEnumerable<SingleCardStats>? MulliganCardStats
+    {
+        get
+        {
+            return _mulliganCardStats;
+        }
+        set
+        {
+            _mulliganCardStats = value;
+            Core.UpdatePlayerCards(reset: true);
+        }
+    }
+
+    [Obsolete("Use OriginalClass or CurrentClass instead", true)]
+    public string? Class => OriginalClass;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public Player(IGame game, bool isLocalPlayer)
+    {
+        _game = game;
+        IsLocalPlayer = isLocalPlayer;
+    }
+
+    private DeckState GetDeckState()
+    {
+        IEnumerable<Card> first = (from x in Deck
+                                   where x.HasCardId && (x.Info.Created || x.Info.Stolen) && !x.Info.Hidden
+                                   select x into ce
+                                   group ce by new
+                                   {
+                                       CardId = ce.CardId,
+                                       Created = (ce.Info.Created || ce.Info.Stolen),
+                                       Discarded = ce.Info.Discarded,
+                                       ExtraInfo = ce.Info.ExtraInfo
+                                   }).Select(g =>
+                               {
+                                   Card cardFromId = Database.GetCardFromId(g.Key.CardId);
+                                   if (cardFromId == null)
+                                   {
+                                       return null;
+                                   }
+
+                                   cardFromId.ControllerPlayer = this;
+                                   cardFromId.Count = g.Count();
+                                   cardFromId.IsCreated = g.Key.Created;
+                                   cardFromId.HighlightInHand = Hand.Any((Entity ce) => ce.CardId == g.Key.CardId);
+                                   cardFromId.ExtraInfo = g.Key.ExtraInfo?.Clone() as ICardExtraInfo;
+                                   return cardFromId;
+                               }).WhereNotNull();
+        if (Hero != null && Hero.Tags.TryGetValue((GameTag)3808, out var value) && value != 0)
+        {
+            first = Enumerable.Empty<Card>();
+        }
+
+        List<string> list = (from x in DeckList.Instance.ActiveDeckVersion?.Cards
+                             where x.Count > 0
+                             select Enumerable.Repeat(x.Id, x.Count)).SelectMany((IEnumerable<string> x) => x).ToList();
+        List<Entity> list2 = RevealedEntities.Where((Entity x) => (!x.Info.Created || x.Info.OriginalEntityWasCreated == false) && x.IsPlayableCard && (!x.IsInDeck || x.Info.Stolen) && x.Info.OriginalController == Id && (!x.Info.Hidden || (!x.IsInDeck && !x.IsInHand))).ToList();
+        List<Sideboard> list3 = DeckList.Instance.ActiveDeckVersion?.Sideboards;
+        List<string> list4 = new List<string>();
+        Card card2 = list3?.FirstOrDefault((Sideboard s) => s.OwnerCardId == "TOY_330")?.Cards.FirstOrDefault((Card c) => c.ZilliaxCustomizableCosmeticModule);
+        foreach (Entity item in list2)
+        {
+            string cardId2 = item.CardId;
+            if (cardId2 != null)
+            {
+                if (cardId2 == card2?.Id)
+                {
+                    list?.Remove("TOY_330");
+                }
+
+                list?.Remove(cardId2);
+                if (!item.Info.Stolen || item.Info.OriginalController == Id)
+                {
+                    list4.Add(cardId2);
+                }
+            }
+        }
+
+        IEnumerable<Card> remainingInDeck = Helper.ResolveZilliax3000(first.Concat(list?.GroupBy((string x) => x).Select(ToRemainingCard).WhereNotNull() ?? new List<Card>()), list3 ?? new List<Sideboard>());
+        IEnumerable<Card> removedFromDeck = (from x in list4
+                                             group x by x).Select(ToRemovedCard).WhereNotNull();
+        List<string> source = (from x in RevealedEntities.Where(delegate (Entity x)
+            {
+                if (x.HasCardId && x.IsPlayableCard && x.Info.OriginalController == Id)
+                {
+                    EntityInfo info = x.Info;
+                    if (info != null)
+                    {
+                        Zone? originalZone = info.OriginalZone;
+                        if (originalZone.HasValue && originalZone.GetValueOrDefault() == Zone.HAND && !info.Hidden && x.GetTag(GameTag.COPIED_FROM_ENTITY_ID) > 0)
+                        {
+                            return RevealedEntities.FirstOrDefault(delegate (Entity c)
+                            {
+                                if (c.Id == x.GetTag(GameTag.COPIED_FROM_ENTITY_ID))
+                                {
+                                    if (c != null && c.IsInSetAside)
+                                    {
+                                        EntityInfo info2 = c.Info;
+                                        if (info2 != null)
+                                        {
+                                            return info2.CreatedInDeck;
+                                        }
+                                    }
+
+                                    return false;
+                                }
+
+                                return false;
+                            }) != null;
+                        }
+                    }
+                }
+
+                return false;
+            })
+                               select x.CardId).ToList();
+        Dictionary<string, IEnumerable<Card>> dictionary = new Dictionary<string, IEnumerable<Card>>();
+        Dictionary<string, IEnumerable<Card>> dictionary2 = new Dictionary<string, IEnumerable<Card>>();
+        if (list3 != null)
+        {
+            foreach (Sideboard item2 in list3)
+            {
+                List<Card> list5 = new List<Card>();
+                List<Card> list6 = new List<Card>();
+                foreach (Card c2 in item2.Cards)
+                {
+                    Card card = Database.GetCardFromId(c2.Id);
+                    if (card != null)
+                    {
+                        card.ControllerPlayer = this;
+                        card.Count = c2.Count - source.Count((string cardId) => cardId == c2.Id);
+                        card.IsCreated = false;
+                        card.HighlightInHand = Hand.Any((Entity ce) => ce.CardId == card.Id);
+                        if (c2.Count > 0)
+                        {
+                            list5.Add(card);
+                        }
+                        else
+                        {
+                            list6.Add(card);
+                        }
+                    }
+                }
+
+                dictionary[item2.OwnerCardId] = list5;
+                dictionary2[item2.OwnerCardId] = list6;
+            }
+        }
+
+        return new DeckState(remainingInDeck, removedFromDeck, dictionary, dictionary2);
+        Card? ToRemainingCard(IGrouping<string, string> x)
+        {
+            Card card4 = Database.GetCardFromId(x.Key);
+            if (card4 == null)
+            {
+                return null;
+            }
+
+            card4.ControllerPlayer = this;
+            card4.Count = x.Count();
+            if (Hand.Any((Entity e) => e.CardId == card4.Id))
+            {
+                card4.HighlightInHand = true;
+            }
+
+            return card4;
+        }
+
+        Card? ToRemovedCard(IGrouping<string, string> c)
+        {
+            Card card3 = Database.GetCardFromId(c.Key);
+            if (card3 == null)
+            {
+                return null;
+            }
+
+            card3.ControllerPlayer = this;
+            card3.Count = 0;
+            if (Hand.Any((Entity e) => e.CardId == card3.Id))
+            {
+                card3.HighlightInHand = true;
+            }
+
+            return card3;
+        }
+    }
+
+    private DeckState GetOpponentDeckState()
+    {
+        IEnumerable<Card> first = (from x in RevealedEntities
+                                   where x.Info.OriginalController == Id && x.IsInDeck && x.HasCardId && (x.Info.Created || x.Info.Stolen) && !x.Info.Hidden
+                                   select x into ce
+                                   group ce by new
+                                   {
+                                       CardId = ce.CardId,
+                                       Created = (ce.Info.Created || ce.Info.Stolen),
+                                       Discarded = ce.Info.Discarded,
+                                       ExtraInfo = ce.Info.ExtraInfo
+                                   }).Select(g =>
+                               {
+                                   Card cardFromId3 = Database.GetCardFromId(g.Key.CardId);
+                                   if (cardFromId3 == null)
+                                   {
+                                       return null;
+                                   }
+
+                                   cardFromId3.ControllerPlayer = this;
+                                   cardFromId3.Count = g.Count();
+                                   cardFromId3.IsCreated = g.Key.Created;
+                                   cardFromId3.HighlightInHand = Hand.Any((Entity ce) => ce.CardId == g.Key.CardId);
+                                   cardFromId3.ExtraInfo = g.Key.ExtraInfo?.Clone() as ICardExtraInfo;
+                                   return cardFromId3;
+                               }).WhereNotNull();
+        List<string> list = (from x in KnownOpponentDeck?.Cards
+                             where x.Count > 0
+                             select Enumerable.Repeat(x.Id, x.Count)).SelectMany((IEnumerable<string> x) => x).ToList();
+        List<Entity> list2 = RevealedEntities.Where((Entity x) => (!x.Info.Created || x.Info.OriginalEntityWasCreated == false) && x.IsPlayableCard && (!x.IsInDeck || x.Info.Stolen) && x.Info.OriginalController == Id && (!x.Info.Hidden || (!x.IsInDeck && !x.IsInHand))).ToList();
+        List<string> list3 = new List<string>();
+        foreach (Entity item in list2)
+        {
+            if (item.CardId != null)
+            {
+                list?.Remove(item.CardId);
+                if (!item.Info.Stolen || item.Info.OriginalController == Id)
+                {
+                    list3.Add(item.CardId);
+                }
+            }
+        }
+
+        return new DeckState(first.Concat((from x in list
+                                           group x by x).Select(delegate (IGrouping<string, string> x)
+                                       {
+                                           Card cardFromId2 = Database.GetCardFromId(x.Key);
+                                           if (cardFromId2 == null)
+                                           {
+                                               return null;
+                                           }
+
+                                           cardFromId2.ControllerPlayer = this;
+                                           cardFromId2.Count = x.Count();
+                                           if (Hand.Any((Entity e) => e.CardId == x.Key))
+                                           {
+                                               cardFromId2.HighlightInHand = true;
+                                           }
+
+                                           return cardFromId2;
+                                       }).WhereNotNull()), (from x in list3
+                                                            group x by x).Select(delegate (IGrouping<string, string> c)
+                         {
+                                           Card cardFromId = Database.GetCardFromId(c.Key);
+                                           if (cardFromId == null)
+                                           {
+                                               return null;
+                                           }
+
+                                           cardFromId.Count = 0;
+                                           cardFromId.ControllerPlayer = this;
+                                           if (Hand.Any((Entity e) => e.CardId == c.Key))
+                                           {
+                                               cardFromId.HighlightInHand = true;
+                                           }
+
+                                           return cardFromId;
+                                       }).WhereNotNull());
+    }
+
+    public IEnumerable<Card> GetPredictedCardsInDeck(bool hidden)
+    {
+        return InDeckPredictions.Select(delegate (PredictedCard x)
+        {
+            Card cardFromId = Database.GetCardFromId(x.CardId);
+            if (cardFromId == null)
+            {
+                return null;
+            }
+
+            cardFromId.ControllerPlayer = this;
+            if (hidden)
+            {
+                cardFromId.Jousted = true;
+            }
+
+            if (x.IsCreated)
+            {
+                cardFromId.IsCreated = true;
+                cardFromId.Count = 1;
+            }
+
+            return cardFromId;
+        }).WhereNotNull();
+    }
+
+    public IEnumerable<Card> GetHighlightedCardsInHand(List<Card> cardsInDeck)
+    {
+        List<Card> cardsInDeck2 = cardsInDeck;
+        return DeckList.Instance.ActiveDeckVersion?.Cards.Where((Card c) => cardsInDeck2.All((Card c2) => c2.Id != c.Id) && Hand.Any((Entity ce) => c.Id == ce.CardId)).Select(delegate (Card c)
+        {
+            Card card = (Card)c.Clone();
+            if (card == null)
+            {
+                return null;
+            }
+
+            card.Count = 0;
+            card.HighlightInHand = true;
+            return card;
+        }).WhereNotNull() ?? new List<Card>();
+    }
+
+    internal List<Card> GetPlayerCardList(bool removeNotInDeck, bool highlightCardsInHand, bool includeCreatedInHand)
+    {
+        IEnumerable<Card> enumerable2;
+        if (!includeCreatedInHand)
+        {
+            IEnumerable<Card> enumerable = new List<Card>();
+            enumerable2 = enumerable;
+        }
+        else
+        {
+            enumerable2 = CreatedCardsInHand;
+        }
+
+        IEnumerable<Card> second = enumerable2;
+        if (DeckList.Instance.ActiveDeck == null)
+        {
+            return RevealedCards.Concat<Card>(second).Concat<Card>(KnownCardsInDeck).Concat<Card>(GetPredictedCardsInDeck(hidden: true))
+                .ToSortedCardList();
+        }
+
+        CardListExtensions.CardSorting sorting = ((!_game.IsMulliganDone) ? CardListExtensions.CardSorting.MulliganWr : CardListExtensions.CardSorting.Cost);
+        DeckState deckState = GetDeckState();
+        List<Card> inDeck = deckState.RemainingInDeck.ToList();
+        List<Card> second2 = deckState.RemovedFromDeck.Where((Card x) => inDeck.All((Card c) => x.Id != c.Id)).ToList();
+        List<Card> second3 = (from x in GetPredictedCardsInDeck(hidden: false)
+                              where inDeck.All((Card c) => x.Id != c.Id)
+                              select x).ToList();
+        if (!removeNotInDeck)
+        {
+            return AnnotateCards(inDeck.Concat(second3).Concat(second2).Concat(second)).ToSortedCardList(sorting);
+        }
+
+        if (highlightCardsInHand)
+        {
+            return AnnotateCards(inDeck.Concat(second3).Concat<Card>(GetHighlightedCardsInHand(inDeck)).Concat(second)).ToSortedCardList(sorting);
+        }
+
+        return AnnotateCards(inDeck.Concat(second3).Concat(second)).ToSortedCardList(sorting);
+    }
+
+    private IEnumerable<Card> AnnotateCards(IEnumerable<Card> cards)
+    {
+        cards = Helper.ResolveZilliax3000(cards, PlayerSideboardsDict);
+        if (MulliganCardStats == null)
+        {
+            return cards;
+        }
+
+        return cards.Select(delegate (Card card)
+        {
+            int dbfId = card.DeckbuildingCard.DbfId;
+            SingleCardStats singleCardStats = MulliganCardStats.FirstOrDefault((SingleCardStats x) => ((CardStats)x).DbfId == dbfId);
+            if (singleCardStats != null)
+            {
+                Card obj = (Card)card.Clone();
+                float? openingHandWinrate = ((CardStats)singleCardStats).OpeningHandWinrate;
+                CardWinrates? cardWinrates;
+                if (openingHandWinrate.HasValue)
+                {
+                    float valueOrDefault = openingHandWinrate.GetValueOrDefault();
+                    cardWinrates = new CardWinrates
+                    {
+                        MulliganWinrate = valueOrDefault,
+                        BaseWinrate = (float?)singleCardStats.BaseWinrate
+                    };
+                }
+                else
+                {
+                    cardWinrates = null;
+                }
+
+                obj.CardWinrates = cardWinrates;
+                obj.IsMulliganOption = Hand.Any((Entity x) => x.Card.DbfId == dbfId);
+                return obj;
+            }
+
+            return card;
+        });
+    }
+
+    internal List<Sideboard> GetPlayerSideboards(bool removeNotInSideboard)
+    {
+        if (DeckList.Instance.ActiveDeck == null)
+        {
+            return new List<Sideboard>();
+        }
+
+        DeckState deckState = GetDeckState();
+        Dictionary<string, List<Card>> dictionary = new Dictionary<string, List<Card>>();
+        if (deckState.RemainingInSideboards != null)
+        {
+            foreach (KeyValuePair<string, IEnumerable<Card>> remainingInSideboard in deckState.RemainingInSideboards)
+            {
+                dictionary[remainingInSideboard.Key] = new List<Card>(remainingInSideboard.Value);
+            }
+        }
+
+        if (deckState.RemovedFromSideboards != null && !removeNotInSideboard)
+        {
+            foreach (KeyValuePair<string, IEnumerable<Card>> removedFromSideboard in deckState.RemovedFromSideboards)
+            {
+                if (dictionary.TryGetValue(removedFromSideboard.Key, out var value))
+                {
+                    value.AddRange(removedFromSideboard.Value);
+                }
+                else
+                {
+                    dictionary[removedFromSideboard.Key] = new List<Card>(removedFromSideboard.Value);
+                }
+            }
+        }
+
+        List<Sideboard> list = new List<Sideboard>();
+        foreach (KeyValuePair<string, List<Card>> item in dictionary)
+        {
+            list.Add(new Sideboard(item.Key, item.Value.ToList()));
+        }
+
+        return list;
+    }
+
+    public List<Card> GetOpponentCardList(bool removeNotInDeck, bool highlightCardsInHand, bool includeCreatedInHand)
+    {
+        if (KnownOpponentDeck == null)
+        {
+            return (from x in RevealedEntities
+                    where (x.Info.GuessedCardState != 0 || !x.Info.Hidden || (!x.IsInDeck && !x.IsInHand)) && (x.IsPlayableCard || !x.HasTag(GameTag.CARDTYPE)) && (x.GetTag(GameTag.CREATOR) == 1 || ((!x.Info.Created || (Config.Instance.OpponentIncludeCreated && (x.Info.CreatedInDeck || x.Info.CreatedInHand))) && x.Info.OriginalController == Id) || x.IsInHand || x.IsInDeck) && !CardIds.HiddenCardidPrefixes.Any((string y) => x.CardId != null && x.CardId.StartsWith(y)) && !EntityIsRemovedFromGamePassive(x) && (!x.Info.Created || !x.IsInSetAside || (x.Info.GuessedCardState == GuessedCardState.Guessed && (x.Info.GuessedCardState != GuessedCardState.Guessed || (!(x.CardId == "TTN_450t3") && !(x.CardId == "TTN_450t") && !(x.CardId == "TTN_450t2") && !(x.CardId == "VAC_321t") && !(x.CardId == "BOT_511t")))))
+                    select x into e
+                    group e by new
+                    {
+                        CardId = (e.Info.WasTransformed ? e.Info.OriginalCardId : e.CardId),
+                        Hidden = ((e.IsInHand || e.IsInDeck || (e.IsInSetAside && e.Info.GuessedCardState == GuessedCardState.Guessed)) && e.IsControlledBy(Id)),
+                        Created = (e.Info.Created || (e.Info.Stolen && e.Info.OriginalController != Id)),
+                        Discarded = (e.Info.Discarded && Config.Instance.HighlightDiscarded),
+                        ExtraInfo = e.Info.ExtraInfo
+                    }).Select(g =>
+                {
+                    if (g.Key.CardId == null)
+                    {
+                        return null;
+                    }
+
+                    Card cardFromId = Database.GetCardFromId(g.Key.CardId);
+                    if (cardFromId == null)
+                    {
+                        return null;
+                    }
+
+                    cardFromId.ControllerPlayer = this;
+                    cardFromId.Count = g.Count();
+                    cardFromId.Jousted = g.Key.Hidden;
+                    cardFromId.IsCreated = g.Key.Created;
+                    cardFromId.WasDiscarded = g.Key.Discarded;
+                    cardFromId.ExtraInfo = g.Key.ExtraInfo?.Clone() as ICardExtraInfo;
+                    return cardFromId;
+                }).WhereNotNull().Concat<Card>(GetPredictedCardsInDeck(hidden: true))
+                .ToSortedCardList();
+        }
+
+        IEnumerable<Card> enumerable2;
+        if (!includeCreatedInHand)
+        {
+            IEnumerable<Card> enumerable = new List<Card>();
+            enumerable2 = enumerable;
+        }
+        else
+        {
+            enumerable2 = CreatedCardsInHand;
+        }
+
+        IEnumerable<Card> second = enumerable2;
+        DeckState opponentDeckState = GetOpponentDeckState();
+        List<Card> inDeck = opponentDeckState.RemainingInDeck.ToList();
+        List<Card> second2 = opponentDeckState.RemovedFromDeck.Where((Card x) => inDeck.All((Card c) => x.Id != c.Id)).ToList();
+        List<Card> second3 = (from x in GetPredictedCardsInDeck(hidden: false)
+                              where inDeck.All((Card c) => x.Id != c.Id)
+                              select x).ToList();
+        if (!removeNotInDeck)
+        {
+            return inDeck.Concat(second3).Concat(second2).Concat(second)
+                .ToSortedCardList();
+        }
+
+        if (highlightCardsInHand)
+        {
+            return inDeck.Concat(second3).Concat<Card>(GetHighlightedCardsInHand(inDeck)).Concat(second)
+                .ToSortedCardList();
+        }
+
+        return inDeck.Concat(second3).Concat(second).ToSortedCardList();
+    }
+
+    private bool EntityIsRemovedFromGamePassive(Entity entity)
+    {
+        if (entity.HasTag(GameTag.DUNGEON_PASSIVE_BUFF))
+        {
+            return entity.GetTag(GameTag.ZONE) == 5;
+        }
+
+        return false;
+    }
+
+    public void Reset()
+    {
+        Name = "";
+        OriginalClass = "";
+        CurrentClass = "";
+        Id = -1;
+        Fatigue = 0;
+        InDeckPredictions.Clear();
+        SpellsPlayedCards.Clear();
+        SpellsPlayedInFriendlyCharacters.Clear();
+        SpellsPlayedInOpponentCharacters.Clear();
+        PogoHopperPlayedCount = 0;
+        CardsPlayedThisTurn.Clear();
+        CardsPlayedLastTurn.Clear();
+        CardsPlayedThisMatch.Clear();
+        LaunchedStarships.Clear();
+        StartingHand.Clear();
+        SecretsTriggeredCards.Clear();
+        LastDrawnCardId = null;
+        LibramReductionCount = 0;
+        PlayedSpellSchools.Clear();
+        AbyssalCurseCount = 0;
+        PastHeroPowers.Clear();
+        DeadMinionsCards.Clear();
+    }
+
+    public void Draw(Entity entity, int turn)
+    {
+        if (IsLocalPlayer && entity.CardId != null)
+        {
+            UpdateKnownEntitiesInDeck(entity.CardId);
+            entity.Info.Hidden = false;
+        }
+
+        if (!IsLocalPlayer)
+        {
+            Entity? opponentEntity = _game.OpponentEntity;
+            if (opponentEntity != null && opponentEntity.GetTag(GameTag.MULLIGAN_STATE) == 2)
+            {
+                entity.Info.Mulliganed = true;
+            }
+
+            entity.Info.Hidden = true;
+        }
+
+        entity.Info.Turn = turn;
+        LastDrawnCardId = entity.CardId;
+        if (turn == 0)
+        {
+            StartingHand.Add(entity);
+        }
+    }
+
+    private void Log(Entity entity, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "")
+    {
+        Log(entity.ToString(), memberName, sourceFilePath);
+    }
+
+    private void Log(string msg, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "")
+    {
+        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info((IsLocalPlayer ? "[Player] " : "[Opponent] ") + msg, memberName, sourceFilePath);
+    }
+
+    public void Play(Entity entity, int turn)
+    {
+        if (!IsLocalPlayer && entity.CardId != null)
+        {
+            UpdateKnownEntitiesInDeck(entity.CardId, entity.Info.Turn);
+        }
+
+        switch (entity.GetTag(GameTag.CARDTYPE))
+        {
+            case 9:
+                entity.Info.Created = true;
+                break;
+            case 4:
+                if (entity.CardId == "BOT_283")
+                {
+                    PogoHopperPlayedCount++;
+                }
+
+                break;
+            case 5:
+                {
+                    if (entity.CardId != null)
+                    {
+                        SpellsPlayedCards.Add(entity);
+                        if (entity.HasTag(GameTag.CARD_TARGET) && Core.Game.Entities.TryGetValue(entity.GetTag(GameTag.CARD_TARGET), out Entity value))
+                        {
+                            if (value.IsControlledBy(Id))
+                            {
+                                SpellsPlayedInFriendlyCharacters.Add(entity);
+                            }
+                            else if (value.IsControlledBy(_game.Opponent.Id))
+                            {
+                                SpellsPlayedInOpponentCharacters.Add(entity);
+                            }
+                        }
+
+                        IEnumerable<Entity> enumerable = PlayerEntities.Where((Entity e) => e.CardId == "VAC_519t3" && (e.IsInZone(Zone.PLAY) || e.IsInZone(Zone.SECRET)));
+                        if (!EnumerableExtensions.IsEmpty<Entity>(enumerable))
+                        {
+                            foreach (Entity item in enumerable)
+                            {
+                                item.Info.StoredCardIds.Add(entity.CardId);
+                            }
+                        }
+                    }
+
+                    if (entity.Tags.TryGetValue(GameTag.SPELL_SCHOOL, out var value2))
+                    {
+                        PlayedSpellSchools.Add((SpellSchool)value2);
+                    }
+
+                    break;
+                }
+        }
+
+        entity.Info.Hidden = false;
+        entity.Info.Turn = turn;
+        entity.Info.CostReduction = 0;
+        if (entity.CardId != "ETC_113t" && !CardUtils.IsStarship(entity.CardId))
+        {
+            entity.Info.StoredCardIds.Clear();
+        }
+
+        if (entity.CardId != null)
+        {
+            CardsPlayedThisTurn.Add(entity);
+            CardsPlayedThisMatch.Add(entity);
+        }
+    }
+
+    public void OnTurnStart()
+    {
+        CardsPlayedLastTurn = CardsPlayedThisTurn.ToList();
+        CardsPlayedThisTurn.Clear();
+    }
+
+    public void OnTurnEnd()
+    {
+        CardsPlayedLastTurn = CardsPlayedThisTurn.ToList();
+        CardsPlayedThisTurn.Clear();
+    }
+
+    public void DeckToPlay(Entity entity, int turn)
+    {
+        if (entity.CardId != null)
+        {
+            UpdateKnownEntitiesInDeck(entity.CardId);
+        }
+
+        entity.Info.Turn = turn;
+    }
+
+    public void CreateInHand(Entity entity, int turn)
+    {
+        entity.Info.Created = true;
+        entity.Info.Turn = turn;
+    }
+
+    public void CreateInDeck(Entity entity, int turn)
+    {
+        if (entity.Info.Discarded)
+        {
+            entity.Info.Discarded = false;
+            entity.Info.Created = false;
+        }
+        else
+        {
+            entity.Info.Created |= turn > 1;
+        }
+
+        entity.Info.Turn = turn;
+    }
+
+    public void CreateInPlay(Entity entity, int turn)
+    {
+        entity.Info.Created = true;
+        entity.Info.Turn = turn;
+        if (entity.IsHeroPower)
+        {
+            HeroPowerChanged(entity);
+        }
+    }
+
+    public void CreateInSecret(Entity entity, int turn)
+    {
+        entity.Info.Created = true;
+        entity.Info.Turn = turn;
+    }
+
+    public void RemoveFromDeck(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        entity.Info.Discarded = true;
+    }
+
+    public void Mulligan(Entity entity)
+    {
+        StartingHand.Remove(entity);
+    }
+
+    public void HandDiscard(Entity entity, int turn)
+    {
+        if (!IsLocalPlayer && entity.CardId != null)
+        {
+            UpdateKnownEntitiesInDeck(entity.CardId, entity.Info.Turn);
+        }
+
+        entity.Info.Turn = turn;
+        entity.Info.Discarded = true;
+    }
+
+    public void DeckDiscard(Entity entity, int turn)
+    {
+        if (entity.CardId != null)
+        {
+            UpdateKnownEntitiesInDeck(entity.CardId);
+        }
+
+        entity.Info.Turn = turn;
+        entity.Info.Discarded = true;
+    }
+
+    public void HandToDeck(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        entity.Info.Returned = true;
+        entity.Info.DrawerId = null;
+        entity.Info.Hidden = true;
+        if (entity.CardId != "ETC_113t" && !CardUtils.IsStarship(entity.CardId))
+        {
+            entity.Info.StoredCardIds.Clear();
+        }
+    }
+
+    public void BoardToDeck(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        entity.Info.Returned = true;
+    }
+
+    public void BoardToHand(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        entity.Info.Returned = true;
+    }
+
+    public void PredictUniqueCardInDeck(string cardId, bool isCreated)
+    {
+        string cardId2 = cardId;
+        if (InDeckPredictions.All((PredictedCard x) => x.CardId != cardId2))
+        {
+            InDeckPredictions.Add(new PredictedCard(cardId2, 0, isCreated));
+        }
+    }
+
+    public void JoustReveal(Entity entity, int turn)
+    {
+        Entity entity2 = entity;
+        entity2.Info.Turn = turn;
+        PredictedCard predictedCard = InDeckPredictions.FirstOrDefault((PredictedCard x) => x.CardId == entity2.CardId);
+        if (predictedCard != null)
+        {
+            predictedCard.Turn = turn;
+        }
+        else if (entity2.CardId != null && entity2.CardId != "MIS_916a" && entity2.CardId != "MIS_916b" && entity2.CardId != "MIS_916c")
+        {
+            InDeckPredictions.Add(new PredictedCard(entity2.CardId, turn));
+        }
+    }
+
+    private void UpdateKnownEntitiesInDeck(string cardId, int turn = int.MaxValue)
+    {
+        string cardId2 = cardId;
+        PredictedCard predictedCard = InDeckPredictions.FirstOrDefault((PredictedCard x) => x.CardId == cardId2 && turn >= x.Turn);
+        if (predictedCard != null)
+        {
+            InDeckPredictions.Remove(predictedCard);
+        }
+    }
+
+    public void SecretTriggered(Entity entity, int turn)
+    {
+        if (entity.CardId != null)
+        {
+            SecretsTriggeredCards.Add(entity);
+        }
+    }
+
+    public void OpponentSecretTriggered(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        _game.SecretsManager.SecretTriggered(entity);
+    }
+
+    public void SecretPlayedFromDeck(Entity entity, int turn)
+    {
+        if (entity.CardId != null)
+        {
+            UpdateKnownEntitiesInDeck(entity.CardId);
+        }
+
+        entity.Info.Turn = turn;
+    }
+
+    public void SecretPlayedFromHand(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        if (entity.CardId != null)
+        {
+            SpellsPlayedCards.Add(entity);
+        }
+
+        if (entity.Tags.TryGetValue(GameTag.SPELL_SCHOOL, out var value))
+        {
+            PlayedSpellSchools.Add((SpellSchool)value);
+        }
+    }
+
+    public void QuestPlayedFromHand(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        if (entity.CardId != null)
+        {
+            SpellsPlayedCards.Add(entity);
+        }
+    }
+
+    public void SigilPlayedFromHand(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        if (entity.CardId != null)
+        {
+            SpellsPlayedCards.Add(entity);
+        }
+
+        if (entity.Tags.TryGetValue(GameTag.SPELL_SCHOOL, out var value))
+        {
+            PlayedSpellSchools.Add((SpellSchool)value);
+        }
+    }
+
+    public void ObjectivePlayedFromHand(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        if (entity.CardId != null)
+        {
+            SpellsPlayedCards.Add(entity);
+        }
+
+        if (entity.Tags.TryGetValue(GameTag.SPELL_SCHOOL, out var value))
+        {
+            PlayedSpellSchools.Add((SpellSchool)value);
+        }
+    }
+
+    public void PlayToGraveyard(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+        if (entity.IsMinion)
+        {
+            DeadMinionsCards.Add(entity);
+        }
+    }
+
+    public void RemoveFromPlay(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+    }
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public void StolenByOpponent(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+    }
+
+    public void StolenFromOpponent(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+    }
+
+    public void CreateInSetAside(Entity entity, int turn)
+    {
+        entity.Info.Turn = turn;
+    }
+
+    public void UpdateLibramReduction(int change)
+    {
+        LibramReductionCount += change;
+    }
+
+    public void UpdateAbyssalCurse(int value)
+    {
+        AbyssalCurseCount = ((value > 0) ? value : (AbyssalCurseCount + 1));
+    }
+
+    internal void ShuffleDeck()
+    {
+        foreach (Entity item in Deck)
+        {
+            item.Info.DeckIndex = 0;
+        }
+    }
+
+    public void HeroPowerChanged(Entity entity)
+    {
+        if (IsLocalPlayer)
+        {
+            string latestCardId = entity.Info.LatestCardId;
+            if (!string.IsNullOrEmpty(latestCardId))
+            {
+                PastHeroPowers.Add(latestCardId);
+            }
+        }
+    }
+}
+#if false // Decompilation log
+'35' items in cache
+------------------
+Resolve: 'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll'
+------------------
+Resolve: 'PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+Found single assembly: 'PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationFramework.dll'
+------------------
+Resolve: 'PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+Found single assembly: 'PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\PresentationCore.dll'
+------------------
+Resolve: 'HearthDb, Version=31.6.0.0, Culture=neutral, PublicKeyToken=null'
+Found single assembly: 'HearthDb, Version=28.0.0.0, Culture=neutral, PublicKeyToken=null'
+WARN: Version mismatch. Expected: '31.6.0.0', Got: '28.0.0.0'
+Load from: 'C:\Users\jimli\source\repos\BattlegroundsGameCollection\libs\HearthDb.dll'
+------------------
+Resolve: 'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.dll'
+------------------
+Resolve: 'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll'
+------------------
+Resolve: 'WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+Found single assembly: 'WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\WindowsBase.dll'
+------------------
+Resolve: 'System.Xaml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'System.Xaml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xaml.dll'
+------------------
+Resolve: 'System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Found single assembly: 'System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Net.Http.dll'
+------------------
+Resolve: 'MahApps.Metro, Version=1.6.5.1, Culture=neutral, PublicKeyToken=null'
+Found single assembly: 'MahApps.Metro, Version=1.6.5.1, Culture=neutral, PublicKeyToken=null'
+Load from: 'C:\Users\jimli\.nuget\packages\mahapps.metro\1.6.5\lib\net47\MahApps.Metro.dll'
+------------------
+Resolve: 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Core.dll'
+------------------
+Resolve: 'HearthMirror, Version=31.2.2.0, Culture=neutral, PublicKeyToken=null'
+Found single assembly: 'HearthMirror, Version=31.2.2.0, Culture=neutral, PublicKeyToken=null'
+Load from: 'C:\Users\jimli\source\repos\BattlegroundsGameCollection\bin\Debug\HearthMirror.dll'
+------------------
+Resolve: 'HSReplay, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+Could not find by name: 'HSReplay, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+------------------
+Resolve: 'System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Could not find by name: 'System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+------------------
+Resolve: 'System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Found single assembly: 'System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Drawing.dll'
+------------------
+Resolve: 'LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df'
+Could not find by name: 'LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df'
+------------------
+Resolve: 'LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df'
+Could not find by name: 'LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df'
+------------------
+Resolve: 'System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Xml.Linq.dll'
+------------------
+Resolve: 'System.IO.Compression, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Could not find by name: 'System.IO.Compression, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+------------------
+Resolve: 'Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed'
+Found single assembly: 'Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed'
+WARN: Version mismatch. Expected: '12.0.0.0', Got: '13.0.0.0'
+Load from: 'C:\Users\jimli\.nuget\packages\newtonsoft.json\13.0.3\lib\net45\Newtonsoft.Json.dll'
+------------------
+Resolve: 'Squirrel, Version=1.9.1.0, Culture=neutral, PublicKeyToken=null'
+Could not find by name: 'Squirrel, Version=1.9.1.0, Culture=neutral, PublicKeyToken=null'
+------------------
+Resolve: 'NuGet.Squirrel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null'
+Could not find by name: 'NuGet.Squirrel, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null'
+------------------
+Resolve: 'BobsBuddy, Version=1.29.0.0, Culture=neutral, PublicKeyToken=null'
+Could not find by name: 'BobsBuddy, Version=1.29.0.0, Culture=neutral, PublicKeyToken=null'
+------------------
+Resolve: 'SharpRaven, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null'
+Could not find by name: 'SharpRaven, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null'
+------------------
+Resolve: 'HearthWatcher, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+Could not find by name: 'HearthWatcher, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+------------------
+Resolve: 'System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Could not find by name: 'System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+------------------
+Resolve: 'HtmlAgilityPack, Version=1.11.23.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a'
+Could not find by name: 'HtmlAgilityPack, Version=1.11.23.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a'
+------------------
+Resolve: 'System.Numerics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Found single assembly: 'System.Numerics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Numerics.dll'
+------------------
+Resolve: 'Microsoft.Build.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Could not find by name: 'Microsoft.Build.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+------------------
+Resolve: 'De.TorstenMandelkow.MetroChart, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d5b8d1bbc99c4a2a'
+Could not find by name: 'De.TorstenMandelkow.MetroChart, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d5b8d1bbc99c4a2a'
+------------------
+Resolve: 'System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Could not find by name: 'System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+------------------
+Resolve: 'System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+Could not find by name: 'System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+------------------
+Resolve: 'System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Could not find by name: 'System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+------------------
+Resolve: 'WPFLocalizeExtension, Version=3.5.0.0, Culture=neutral, PublicKeyToken=c726e0262981a1eb'
+Found single assembly: 'WPFLocalizeExtension, Version=3.5.0.0, Culture=neutral, PublicKeyToken=c726e0262981a1eb'
+Load from: 'C:\Users\jimli\.nuget\packages\wpflocalizeextension\3.5.0\lib\net452\WPFLocalizeExtension.dll'
+------------------
+Resolve: 'Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Found single assembly: 'Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+Load from: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll'
+#endif

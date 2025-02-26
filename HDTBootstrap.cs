@@ -2,6 +2,7 @@
 using BattlegroundsGameCollection.Controls;
 using BattlegroundsGameCollection.Properties;
 using System;
+using System.IO;
 using System.Reflection;
 using System.Windows.Controls;
 
@@ -22,7 +23,7 @@ namespace BattlegroundsGameCollection
         /// The author, so your name.
         /// </summary>
         /// <value>The author's name.</value>
-        public string Author => "Author Name";
+        public string Author => "LiiHS";
 // ToDo: put your name as the author
 
 
@@ -65,6 +66,13 @@ namespace BattlegroundsGameCollection
 
         public void OnLoad()
         {
+            // Create BGGames directory if it doesn't exist
+            var bgGamesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BGGames");
+            if (!Directory.Exists(bgGamesDir))
+            {
+                Directory.CreateDirectory(bgGamesDir);
+            }
+
             pluginInstance = new BattlegroundsGameCollection();
             AddMenuItem();
         }

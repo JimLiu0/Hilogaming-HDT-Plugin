@@ -124,7 +124,7 @@ namespace BattlegroundsGameCollection.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A Plugin Template.
+        ///   Looks up a localized string similar to Collects BGs game data to use on hilogaming.me.
         /// </summary>
         internal static string TextDescription {
             get {
@@ -133,7 +133,7 @@ namespace BattlegroundsGameCollection.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MyPluginTemplate.
+        ///   Looks up a localized string similar to Hilo BGs data collector.
         /// </summary>
         internal static string TextName {
             get {

@@ -1,0 +1,833 @@
+1:10:42 PM|Info|SplashScreenWindow.ShowConditional >> Showing splashscreen...
+1:10:43 PM|Info|Core.Initialize >> HDT: 1.41.4.6999, Operating System: Windows 10 Enterprise 26100, .NET Framework: 533320
+1:10:43 PM|Info|Updater.StartupUpdateCheck >> Checking for updates, using 0
+1:10:43 PM|Info|Updater.SquirrelUpdate >> Checking for updates (ignoreDelta=False)
+1:10:43 PM|Info|Updater.SquirrelUpdate >> No new update available
+1:10:43 PM|Info|CardDefsManager.GetInitialBaseDefs >> Loading bundled base card defs...
+1:10:43 PM|Info|CardDefsManager.GetInitialBaseDefs >> Bundled CardDefs are up-to-date (2025-02-18 06:47:03 PM +00:00)
+1:10:44 PM|Info|ThemeManager.LoadThemes >> Found theme: classic
+1:10:44 PM|Info|ThemeManager.LoadThemes >> Found theme: dark
+1:10:44 PM|Info|ThemeManager.LoadThemes >> Found theme: frost
+1:10:44 PM|Info|ThemeManager.LoadThemes >> Found theme: minimal
+1:10:44 PM|Info|GameV2.Reset >> -------- Reset ---------
+1:10:44 PM|Info|DeckList.OnActiveDeckChanged >> Set active deck to: Inner Fire (v1.0)
+1:10:46 PM|Info|PluginManager.SyncPlugins >> Updating BattlegroundsGameCollection.dll
+1:10:46 PM|Info|BackupManager.Run >> Running BackupManager
+1:10:46 PM|Info|BackupManager.Run >> Backup for today already exists
+1:10:46 PM|Info|PluginManager.LoadPluginsFromPath >> Loading Plugins...
+1:10:46 PM|Info|PluginWrapper.Load >> Loading Hilo BGs data collector
+1:10:46 PM|Info|PluginWrapper.IsEnabled >> Enabled Hilo BGs data collector
+1:10:46 PM|Info|Helper.EnsureClientLogConfig >> client.config is up-to-date
+1:10:47 PM|Info|Helper.GetCurrentRegion >> Region: US
+1:10:47 PM|Info|BackupManager.Run >> Running BackupManager
+1:10:47 PM|Info|BackupManager.Run >> Backup for today already exists
+1:10:47 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Updating account data...
+1:10:47 PM|Info|Helper.EnsureClientLogConfig >> client.config is up-to-date
+1:10:47 PM|Info|HsReplayDecks.Load >> Loaded from disk: Count=1784, ServerTS=2/25/2025 7:32:57 AM, Downloaded=2/25/2025 12:25:22 PM Age=00:45:25.3330531
+1:10:47 PM|Info|HsReplayDecks.Load >> Complete: Count=1784, ServerTS=2/25/2025 7:32:57 AM, Downloaded=2/25/2025 12:25:22 PM Age=00:45:25.3340551
+1:10:48 PM|Info|CardDefsManager.EnsureLatestCardDefs >> Loaded initial base CardDefs: Count=32034, Build=216423
+1:10:48 PM|Info|LogWatcherManager.Start >> Using Hearthstone log directory 'C:\Program Files (x86)\Hearthstone\Logs'
+1:10:48 PM|Info|LogWatcherManager.OnLogFileFound >> Achievements
+1:10:48 PM|Info|LogWatcherManager.OnLogFileFound >> LoadingScreen
+1:10:48 PM|Info|LogWatcherManager.OnLogFileFound >> Power
+1:10:48 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Found account: Lii#11987
+1:10:48 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Fetching twitch accounts...
+1:10:48 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Updating account data...
+1:10:48 PM|Info|GameV2.CurrentMode >> TOURNAMENT
+1:10:48 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Found account: Lii#11987
+1:10:48 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Fetching twitch accounts...
+1:10:48 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Saved 1 account(s): LiiHS
+1:10:53 PM|... 1 duplicate messages
+1:10:53 PM|Info|OverlayWindow.SetTopmost >> Could not set overlay as topmost
+1:11:02 PM|... 1 duplicate messages
+1:11:02 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetSceneMgrState: ScryMemoryAccessException: Failed to read 4 bytes from remote address 00000008: Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
+
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetDeckPickerState: ScryMemoryAccessException: Failed to read 4 bytes from remote address 00000008: Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
+
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetDeckPickerDecksOnPage: ScryMemoryAccessException: Failed to read 4 bytes from remote address 00000008: Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
+
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetDeckPickerState: ScryMemoryAccessException: Failed to read 4 bytes from remote address 00000028: Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
+
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetDeckPickerState: ScryInitializationException: Exception of type 'ScryDotNet.ScryInitializationException' was thrown.
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetIsBlurActive: ScryInitializationException: Exception of type 'ScryDotNet.ScryInitializationException' was thrown.
+1:11:16 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetDeckPickerState: ScryInitializationException: Exception of type 'ScryDotNet.ScryInitializationException' was thrown.
+1:11:16 PM|Info|Core.UpdateOverlayAsync >> Exited game
+1:11:16 PM|Info|Core.UpdateOverlayAsync >> Reset region
+1:11:16 PM|Info|GameV2.Reset >> -------- Reset ---------
+1:11:17 PM|Info|LogWatcherManager.Start >> Using Hearthstone log directory 'C:\Program Files (x86)\Hearthstone\Logs'
+1:11:17 PM|Info|LogWatcherManager.OnLogFileFound >> Power
+1:11:26 PM|Info|Helper.EnsureClientLogConfig >> client.config is up-to-date
+1:11:43 PM|Info|LogWatcherManager.OnLogFileFound >> LoadingScreen
+1:11:44 PM|Info|GameV2.CurrentMode >> LOGIN
+1:11:44 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetAccountId: RuntimeBinderException: Cannot perform runtime binding on a null reference
+1:11:46 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:11:46 PM|Info|Helper.EnsureClientLogConfig >> client.config is up-to-date
+1:11:47 PM|Info|Core.Initialize >> HearthMirror RPC [client]: Error while invoking GetAccountId: RuntimeBinderException: Cannot perform runtime binding on a null reference
+1:11:50 PM|... 1 duplicate messages
+1:11:50 PM|Info|LogWatcherManager.OnLogFileFound >> Achievements
+1:11:51 PM|Info|Helper.GetCurrentRegion >> Region: ASIA
+1:11:51 PM|Info|BackupManager.Run >> Running BackupManager
+1:11:51 PM|Info|BackupManager.Run >> Backup for today already exists
+1:12:06 PM|Info|GameV2.CurrentMode >> HUB
+1:12:10 PM|Info|GameV2.CurrentMode >> BACON
+1:12:10 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Updating account data...
+1:12:10 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Found account: Lii#11987
+1:12:10 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Fetching twitch accounts...
+1:12:10 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Saved 1 account(s): LiiHS
+1:12:14 PM|Info|QueueEvents.Handle >> Now in queue
+1:12:14 PM|Info|QueueEvents.Handle >> Switching to no-deck mode for battlegrounds
+1:12:14 PM|Info|DeckList.OnActiveDeckChanged >> Set active deck to: null
+1:12:14 PM|Info|GameV2.Reset >> -------- Reset ---------
+1:12:19 PM|Info|QueueEvents.Handle >> No longer in queue
+1:12:20 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:12:31 PM|... 1 duplicate messages
+1:12:31 PM|Info|QueueEvents.Handle >> Now in queue
+1:12:40 PM|Info|QueueEvents.Handle >> No longer in queue
+1:12:40 PM|Info|GameEventHandler.HandleGameStart >> --- Game start ---
+1:12:40 PM|Info|GameV2.Reset >> -------- Reset ---------
+1:12:40 PM|Info|GameV2.CacheMatchInfo >> Waiting for matchInfo... (matchInfo=, localPlayer=, opposingPlayer=)
+1:12:40 PM|Info|TurnTimer.Start >> Starting turn timer
+1:12:40 PM|Warning|TurnTimer.Start >> Waiting for player entity
+1:12:40 PM|Error|ActionList.Execute >> Error invoking action:
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at BattlegroundsGameCollection.BattlegroundsGameCollection.ShowGameStartOverlay()
+   at BattlegroundsGameCollection.BattlegroundsGameCollection.OnGameStart()
+   at Hearthstone_Deck_Tracker.API.ActionList.Execute() in D:\a\Hearthstone-Deck-Tracker\Hearthstone-Deck-Tracker\Hearthstone Deck Tracker\API\ActionList.cs:line 90
+1:12:41 PM|Info|GameV2.CacheMatchInfo >> Waiting for matchInfo... (matchInfo=, localPlayer=, opposingPlayer=)
+1:12:45 PM|... 3 duplicate messages
+1:12:45 PM|Info|GameV2.CurrentMode >> GAMEPLAY
+1:12:45 PM|Info|GameV2.UpdatePlayers >> Lii#11987 [PlayerId=6] vs Bartender Bob [PlayerId=14]
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=35
+1:12:46 PM|Info|GameEventHandler.SetPlayerHero >> Player=BaconPHhero
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=36
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=61
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=62
+1:12:46 PM|Info|GameEventHandler.SetOpponentHero >> Opponent=Bartender Bob
+1:12:46 PM|Info|TagChangeActions.StepChange >> Game was already in progress.
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=101
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=102
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=103
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=104
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=117
+1:12:46 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=132
+1:13:03 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=145
+1:13:54 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=161
+1:13:54 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=176
+1:13:54 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=191
+1:13:55 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=206
+1:13:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=101): 6 -> 4
+1:13:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=104): 6 -> 4
+1:13:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=102): 6 -> 4
+1:13:55 PM|Info|TagChangeActions.StepChange >> Game was already in progress.
+1:14:04 PM|... 4 duplicate messages
+1:14:04 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 1 ---
+1:14:04 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:14:07 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=383): 6 -> 5
+1:14:07 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=384): 6 -> 5
+1:14:07 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=385): 6 -> 5
+1:14:07 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=386): 6 -> 5
+1:14:11 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:14:19 PM|... 1 duplicate messages
+1:14:19 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=144): 6 -> 5
+1:14:42 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=490): 6 -> 5
+1:14:42 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 1 ---
+1:14:42 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=562
+1:14:44 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=613
+1:14:44 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Al'Akir with player id 2 (1 entities
+1:14:46 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_1
+1:14:46 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:14:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:14:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:14:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:14:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:14:46 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:14:46 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:14:46 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_1 Waiting for state changes...
+1:14:47 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_1 continuing...
+1:14:47 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:14:47 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=5
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=TB_BaconShop_HP_086, used=True, data=0
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: 
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> [Dozy Whelp 0/3, Taunt]
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=477.9887ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=0%)
+1:14:47 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:14:47 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:14:51 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Al'Akir, defender=The Jailer
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=648): 6 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=649): 6 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=247): 4 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=394): 4 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=391): 4 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=617): 4 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=562): 6 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=564): 6 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=565): 6 -> 5
+1:14:53 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=566): 6 -> 5
+1:14:56 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 2 ---
+1:14:56 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_1
+1:14:56 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:14:56 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:14:56 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:14:56 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:14:56 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=190): 6 -> 5
+1:14:56 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=513): 6 -> 5
+1:14:56 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=866): 6 -> 5
+1:14:56 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=867): 6 -> 5
+1:14:56 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=868): 6 -> 5
+1:14:56 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=875): 6 -> 5
+1:14:56 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=NoOneDied
+1:14:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=814): 6 -> 5
+1:15:05 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:15:18 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=896): 6 -> 5
+1:15:51 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=1032
+1:15:53 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 2 ---
+1:15:53 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=1101
+1:15:53 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Master Nguyen with player id 4 (1 entities
+1:15:55 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_2
+1:15:55 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:15:55 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:15:55 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:15:55 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:15:55 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:15:55 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:15:55 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:15:55 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_2 Waiting for state changes...
+1:15:56 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_2 continuing...
+1:15:56 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:15:56 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=4
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=TB_BaconShop_HP_008, used=False, data=0
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> [Manasaber 4/1]
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=387.8439ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=0%)
+1:15:56 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:15:56 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:16:00 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Master Nguyen, defender=The Jailer
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1137): 6 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1138): 6 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=864): 4 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=903): 4 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=865): 4 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=567): 4 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1105): 4 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1104): 4 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1032): 6 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1034): 6 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1035): 6 -> 5
+1:16:05 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1042): 6 -> 5
+1:16:08 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 3 ---
+1:16:08 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_2
+1:16:08 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:16:08 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:16:08 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:16:08 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:16:08 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=778): 6 -> 5
+1:16:08 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=NoOneDied
+1:16:08 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1361): 6 -> 5
+1:16:08 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1362): 6 -> 5
+1:16:08 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1363): 6 -> 5
+1:16:08 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1364): 6 -> 5
+1:16:08 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1373): 6 -> 5
+1:16:10 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=980): 6 -> 5
+1:16:16 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1397): 6 -> 5
+1:17:01 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=1570
+1:17:02 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 3 ---
+1:17:02 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=1646
+1:17:02 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Artanis with player id 1 (3 entities
+1:17:05 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_3
+1:17:05 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:17:05 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:17:05 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:17:05 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:17:05 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:17:05 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:17:05 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:17:05 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_3 Waiting for state changes...
+1:17:05 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_3 continuing...
+1:17:05 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:17:05 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=3
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=BG31_HERO_802p, used=False, data=14
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: [Colossus 6/12, ScriptDataNum1=1]
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> [Lullabot 2/3]
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> [Tough Tusk 5/3]
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:17:05 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:17:06 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:17:06 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=329.3578ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:17:06 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=0%)
+1:17:06 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:17:06 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:17:09 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Artanis, defender=The Jailer
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1691): 6 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1359): 4 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1404): 4 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1360): 4 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1043): 4 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1653): 4 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1570): 6 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1572): 6 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1573): 6 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1577): 6 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1578): 6 -> 5
+1:17:11 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1580): 6 -> 5
+1:17:14 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 4 ---
+1:17:14 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_3
+1:17:14 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:17:14 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:17:14 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:17:14 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:17:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1279): 6 -> 5
+1:17:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1925): 6 -> 5
+1:17:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1926): 6 -> 5
+1:17:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1927): 6 -> 5
+1:17:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1928): 6 -> 5
+1:17:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1937): 6 -> 5
+1:17:14 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=NoOneDied
+1:17:16 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1438): 6 -> 5
+1:17:24 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1964): 6 -> 5
+1:18:21 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=2178
+1:18:22 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 4 ---
+1:18:22 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=2294
+1:18:22 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Jandice Barov with player id 8 (5 entities
+1:18:25 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_4
+1:18:25 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:18:25 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:18:25 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:18:25 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:18:25 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:18:25 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:18:25 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:18:25 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_4 Waiting for state changes...
+1:18:25 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_4 continuing...
+1:18:25 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:18:25 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=2
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, Spell
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=TB_BaconShop_HP_084, used=False, data=0
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: 
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> [Razorfen Geomancer 3/1]
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ancestral Automaton 2/4]
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:18:25 PM|... 1 duplicate messages
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> [Picky Eater 3/3]
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:18:25 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:18:26 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:18:26 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=477.6051ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:18:26 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=0%)
+1:18:26 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:18:26 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:18:29 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Jandice Barov, defender=The Jailer
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2355): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1923): 4 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1971): 4 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1924): 4 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1581): 4 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2305): 4 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2298): 4 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2178): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2180): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2181): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2182): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2183): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2184): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2185): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2186): 6 -> 5
+1:18:32 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2187): 6 -> 5
+1:18:35 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 5 ---
+1:18:35 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_4
+1:18:35 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:18:35 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:18:35 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:18:35 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:18:35 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1845): 6 -> 5
+1:18:35 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2603): 6 -> 5
+1:18:35 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2604): 6 -> 5
+1:18:35 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2605): 6 -> 5
+1:18:35 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2606): 6 -> 5
+1:18:35 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2615): 6 -> 5
+1:18:35 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=NoOneDied
+1:18:38 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2006): 6 -> 5
+1:18:52 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2722): 6 -> 5
+1:18:52 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2723): 6 -> 5
+1:18:52 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2724): 6 -> 5
+1:18:52 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2725): 6 -> 5
+1:18:52 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2726): 6 -> 5
+1:18:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2739): 6 -> 5
+1:18:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2740): 6 -> 5
+1:18:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2741): 6 -> 5
+1:18:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2742): 6 -> 5
+1:18:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2743): 6 -> 5
+1:18:57 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2645): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2767): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2768): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2769): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2770): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2780): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2781): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2771): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2772): 6 -> 5
+1:18:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2773): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2777): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2778): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2807): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2808): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2809): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2810): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2811): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2812): 6 -> 5
+1:19:03 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2813): 6 -> 5
+1:19:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2853): 6 -> 5
+1:19:19 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:19:57 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=3019
+1:19:58 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 5 ---
+1:19:58 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=3150
+1:19:58 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Al'Akir with player id 2 (6 entities
+1:20:01 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_5
+1:20:01 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:20:01 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:20:01 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:20:01 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:20:01 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:20:01 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:20:01 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:20:01 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_5 Waiting for state changes...
+1:20:01 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_5 continuing...
+1:20:01 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:20:01 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=1
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Prophet of the Boar 5/6, Taunt]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=TB_BaconShop_HP_086, used=True, data=0
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: 
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Lullabot 7/5]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Dozy Whelp 4/3, Taunt]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Low-Flier 3/2]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Crater Miner 3/2]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Low-Flier 3/2]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> [Humming Bird 3/7, Taunt]
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:20:01 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:20:03 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:20:03 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=1246.4016ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:20:03 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=0%)
+1:20:03 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:20:03 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:20:10 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Al'Akir, defender=The Jailer
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3164): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3165): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3284): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3285): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2712): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2713): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2744): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2797): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2798): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2799): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3233): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3234): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2601): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2652): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=881): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=877): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=477): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2718): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1943): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=1939): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2616): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2822): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2847): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2859): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2846): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2602): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2820): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2854): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2189): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2714): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3172): 4 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3019): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3021): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3022): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3023): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3027): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3032): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3033): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3034): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3035): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3286): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3287): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3037): 6 -> 5
+1:20:12 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3038): 6 -> 5
+1:20:15 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 6 ---
+1:20:15 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_5
+1:20:15 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:20:15 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:20:15 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:20:15 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:20:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2522): 6 -> 5
+1:20:15 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=NoOneDied
+1:20:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3525): 6 -> 5
+1:20:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3526): 6 -> 5
+1:20:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3527): 6 -> 5
+1:20:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3528): 6 -> 5
+1:20:15 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3537): 6 -> 5
+1:20:18 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2762): 6 -> 5
+1:20:34 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3568): 6 -> 5
+1:21:42 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=4054
+1:21:43 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 6 ---
+1:21:43 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=4257
+1:21:43 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Gravewing Galewing with player id 5 (0 entities
+1:21:46 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_6
+1:21:46 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:21:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:21:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:21:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:21:46 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:21:46 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:21:46 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:21:46 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_6 Waiting for state changes...
+1:21:46 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_6 continuing...
+1:21:46 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:21:46 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=2
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, Spell
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> [Prophet of the Boar 5/6, Taunt]
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=BG20_HERO_283p, used=False, data=0
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, [Misfit Dragonling 3/3], Spell
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=163.0436ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=100% (Lethal=100%), TieRate=0%, LossRate=0% (Lethal=0%)
+1:21:46 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:21:46 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:21:49 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=The Jailer, defender=Gravewing Galewing
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3523): 4 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=2829): 4 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3575): 4 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3524): 4 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4260): 4 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4054): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4056): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4057): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4069): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4070): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4430): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4431): 6 -> 5
+1:21:51 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4257): 4 -> 5
+1:21:54 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 7 ---
+1:21:54 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_6
+1:21:54 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:21:54 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:21:54 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:21:54 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:21:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3420): 6 -> 5
+1:21:54 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Win, lethalResult=NoOneDied
+1:21:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4609): 6 -> 5
+1:21:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4610): 6 -> 5
+1:21:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4611): 6 -> 5
+1:21:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4612): 6 -> 5
+1:21:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4621): 6 -> 5
+1:21:57 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3552): 6 -> 5
+1:21:57 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3553): 6 -> 5
+1:21:57 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=3750): 6 -> 5
+1:22:22 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4657): 6 -> 5
+1:23:37 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=5185
+1:23:39 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 7 ---
+1:23:39 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=5415
+1:23:39 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Master Nguyen with player id 4 (5 entities
+1:23:42 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_7
+1:23:42 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:23:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:23:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:23:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=2, friendly=False
+1:23:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:23:42 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:23:42 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:23:42 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_7 Waiting for state changes...
+1:23:42 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_7 continuing...
+1:23:42 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:23:42 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=2
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, Spell, Spell
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Prophet of the Boar 5/6, Taunt]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=TB_BaconShop_HP_042, used=False, data=1
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, [Tichondrius 3/6]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Impulsive Trickster 10/13, Taunt]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Impulsive Trickster 8/8]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Living Nightmare 8/6]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Soul Rewinder 21/12, G]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Big Brother 14/10, Taunt]
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:23:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:23:44 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:23:44 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=1284.4539ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:23:44 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=0%)
+1:23:44 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:23:44 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:23:50 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Master Nguyen, defender=The Jailer
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5522): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5523): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4607): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4663): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4608): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4072): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4075): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4077): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4076): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5445): 4 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5185): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5187): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5188): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5189): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5195): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5202): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5207): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5210): 6 -> 5
+1:23:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5217): 6 -> 5
+1:23:57 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 8 ---
+1:23:57 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_7
+1:23:57 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:23:57 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:23:57 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:23:57 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:23:57 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4556): 6 -> 5
+1:23:57 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=NoOneDied
+1:23:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5762): 6 -> 5
+1:23:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5763): 6 -> 5
+1:23:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5764): 6 -> 5
+1:23:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5765): 6 -> 5
+1:23:58 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5774): 6 -> 5
+1:24:00 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4633): 6 -> 5
+1:24:00 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4634): 6 -> 5
+1:24:00 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=4759): 6 -> 5
+1:24:10 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5813): 6 -> 5
+1:25:34 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=6140
+1:25:36 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 8 ---
+1:25:36 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=6342
+1:25:36 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Kel'Thuzad with player id 5 (0 entities
+1:25:39 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_8
+1:25:39 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:25:39 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:25:39 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:25:39 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:25:39 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:25:39 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:25:39 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:25:39 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_8 Waiting for state changes...
+1:25:39 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_8 continuing...
+1:25:39 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:25:39 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=3
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, Spell, Spell, Spell
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> [Prophet of the Boar 5/6, Taunt]
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, [Misfit Dragonling 3/3], Spell
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:25:39 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:25:40 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:25:40 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=140.6724ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:25:40 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=100% (Lethal=100%), TieRate=0%, LossRate=0% (Lethal=0%)
+1:25:40 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:25:40 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:25:42 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=The Jailer, defender=Kel'Thuzad
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5760): 4 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5819): 4 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5761): 4 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6345): 4 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6140): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6142): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6143): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6141): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6155): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6156): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6507): 6 -> 5
+1:25:44 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6508): 6 -> 5
+1:25:47 PM|Info|GameEventHandler.HandleTurnStart >> --- Player turn 9 ---
+1:25:47 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_8
+1:25:47 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to Shopping
+1:25:47 PM|Info|BobsBuddyInvoker.State >> New State: Shopping
+1:25:47 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:25:47 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:25:47 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5687): 6 -> 5
+1:25:47 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Win, lethalResult=OpponentDied
+1:25:47 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6675): 6 -> 5
+1:25:47 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6676): 6 -> 5
+1:25:47 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6677): 6 -> 5
+1:25:47 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6678): 6 -> 5
+1:25:47 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6687): 6 -> 5
+1:25:50 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5794): 6 -> 5
+1:25:50 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5795): 6 -> 5
+1:25:50 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=5868): 6 -> 5
+1:26:14 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6732): 6 -> 5
+1:27:37 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=7164
+1:27:39 PM|Info|GameEventHandler.HandleTurnStart >> --- Opponent turn 9 ---
+1:27:39 PM|Info|TagChangeActions.SetHeroAsync >> Found hero with id=7399
+1:27:39 PM|Info|BattlegroundsBoardState.SnapshotCurrentBoard >> Snapshotting board state for Jandice Barov with player id 8 (7 entities
+1:27:42 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_9
+1:27:42 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Snapshotting board state...
+1:27:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=True
+1:27:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=True
+1:27:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pEternal=0, pUndead=0, pElemental=0, friendly=False
+1:27:42 PM|Info|BobsBuddyInvoker.SetupInputPlayer >> pBloodGem=+0/+0, friendly=False
+1:27:42 PM|Info|BobsBuddyInvoker.SnapshotBoardState >> Successfully snapshotted board state
+1:27:42 PM|Info|BobsBuddyInvoker.State >> New State: Combat
+1:27:42 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_9 Waiting for state changes...
+1:27:42 PM|Info|BobsBuddyInvoker.StartCombat >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_9 continuing...
+1:27:42 PM|Info|BobsBuddyInvoker.StartCombat >> Setting UI state to combat...
+1:27:42 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Running simulation...
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations...
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Input -----
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Player: heroPower=TB_BaconShop_HP_702, used=False, data=3
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, Spell, Spell, Spell, Spell, Spell, Spell
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Prophet of the Boar 5/6, Taunt]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Sun-Bacon Relaxer 2/3]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ominous Seer 2/1]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Opponent: heroPower=TB_BaconShop_HP_084, used=True, data=0
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Hand: Spell, [Moonsteel Satellite 3/3]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Lighter Fighter 4/1]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Tunnel Blaster 3/7, Taunt]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Marquee Ticker 10/15]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Deflect-o-Bot 4/3, Div]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Prosthetic Hand 8/2, Reborn]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Moonsteel Juggernaut 6/6, ScriptDataNum1=3, ScriptDataNum1=6]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> [Ancestral Automaton 4/6]
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ---
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Input -----
+1:27:42 PM|Info|BobsBuddyInvoker.RunSimulation >> Running simulations with MaxIterations=10000 and ThreadCount=6...
+1:27:44 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- Simulation Output -----
+1:27:44 PM|Info|BobsBuddyInvoker.RunSimulation >> Duration=1766.1685ms, ExitCondition=CompletedSimulations, Iterations=9996
+1:27:44 PM|Info|BobsBuddyInvoker.RunSimulation >> WinRate=0% (Lethal=0%), TieRate=0%, LossRate=100% (Lethal=100%)
+1:27:44 PM|Info|BobsBuddyInvoker.RunSimulation >> ----- End of Output -----
+1:27:44 PM|Info|BobsBuddyInvoker.RunAndDisplaySimulationAsync >> Displaying simulation results
+1:27:52 PM|Info|BobsBuddyInvoker.UpdateAttackingEntities >> Updating entities with attacker=Jandice Barov, defender=The Jailer
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7562): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7563): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6673): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6738): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6674): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6161): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6163): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6158): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6162): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7422): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7405): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7406): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7413): 4 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7164): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7166): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7167): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7168): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7169): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7170): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7175): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7176): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7177): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7181): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7183): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7186): 6 -> 5
+1:27:54 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=7187): 6 -> 5
+1:27:55 PM|Info|GameEventHandler.HandleLoss >> --- Game was lost! ---
+1:27:55 PM|Info|TurnTimer.Stop >> Stopping turn timer
+1:27:55 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> b3a041a1-7b83-4ec4-b361-bf1358ad0558_9
+1:27:55 PM|Info|BobsBuddyInvoker.StartShoppingAsync >> Setting UI state to GameOver
+1:27:55 PM|Info|BobsBuddyInvoker.State >> New State: GameOver
+1:27:55 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> Validating results...
+1:27:55 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> metricSampling=1, reportErrors=True
+1:27:55 PM|Info|GameEventHandler.HandleGameEnd >> Game ended...
+1:27:55 PM|Info|GameEventHandler.HandleGameEnd >> Format: 
+1:27:55 PM|Info|GameStats.GameEnd >> Current Game ended after 9 turns
+1:27:55 PM|Error|ActionList.Execute >> Error invoking action:
+System.IO.FileNotFoundException: Could not load file or assembly 'Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed' or one of its dependencies. The system cannot find the file specified.
+File name: 'Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed'
+   at BattlegroundsGameCollection.BattlegroundsGameCollection.OnGameEnd()
+   at Hearthstone_Deck_Tracker.API.ActionList.Execute() in D:\a\Hearthstone-Deck-Tracker\Hearthstone-Deck-Tracker\Hearthstone Deck Tracker\API\ActionList.cs:line 90
+
+WRN: Assembly binding logging is turned OFF.
+To enable assembly bind failure logging, set the registry value [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD) to 1.
+Note: There is some performance penalty associated with assembly bind failure logging.
+To turn this feature off, remove the registry value [HKLM\Software\Microsoft\Fusion!EnableLog].
+
+1:27:55 PM|Info|GameEventHandler.HandleGameEnd >> Assigned current deck to default BaconPHhero deck.
+1:27:55 PM|Info|LogUploader.Upload >> Uploading 1998786365...
+1:27:55 PM|Info|LogUploader.TryUpload >> Creating upload request...
+1:27:55 PM|Warning|TagChangeActions.ZoneChangeFromOther >> unhandled zone change (id=6804): 6 -> 5
+1:27:55 PM|Info|BobsBuddyInvoker.ValidateSimulationResultAsync >> result=Loss, lethalResult=FriendlyDied
+1:27:56 PM|Info|LogUploader.TryUpload >> Upload Id: MnS8y6LKsSh9quvvvSxn8K
+1:27:56 PM|Info|LogUploader.TryUpload >> Upload complete
+1:27:56 PM|Info|LogUploader.Upload >> 1998786365 complete. Success=True
+1:29:21 PM|Info|GameV2.CurrentMode >> BACON
+1:29:21 PM|Info|GameEventHandler.HandleInMenu >> Game is now in menu.
+1:29:21 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:29:21 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Updating account data...
+1:29:21 PM|Info|GameEventHandler.SaveAndUpdateStats >> Local deck stats are disabled for Battlegrounds. Removed game from default BaconPHhero.
+1:29:21 PM|Info|HSReplayNetOAuth.UpdateAccountData >> Found account: Lii#11987
+1:29:21 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Fetching twitch accounts...
+1:29:22 PM|Info|HSReplayNetOAuth.UpdateTwitchUsers >> Saved 1 account(s): LiiHS
+1:29:35 PM|Info|OverlayWindow.SetTopmost >> Overlay is topmost after 1 tries.
+1:30:43 PM|Info|Updater.SquirrelUpdate >> Checking for updates (ignoreDelta=False)
+1:30:43 PM|Info|Updater.SquirrelUpdate >> No new update available
