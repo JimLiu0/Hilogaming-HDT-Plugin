@@ -22,29 +22,41 @@ namespace BattlegroundsGameCollection.Controls
     /// </summary>
     public partial class PlugInDisplayControl : StackPanel
     {
+        private TextBlock _simulationText;
+
         public PlugInDisplayControl()
         {
             InitializeComponent();
-            FakeLogic();
+            InitializeSimulationDisplay();
         }
 
-        public void FakeLogic()
+        private void InitializeSimulationDisplay()
         {
-            GameEvents.OnPlayerHandMouseOver.Add(PlayerHandMouseOver);
-            GameEvents.OnMouseOverOff.Add(OnMouseOff);
+            _simulationText = new TextBlock
+            {
+                Visibility = Visibility.Collapsed,
+                Foreground = Brushes.White,
+                FontSize = 14,
+                Margin = new Thickness(10),
+                TextWrapping = TextWrapping.Wrap
+            };
+
+            Children.Add(_simulationText);
         }
 
-        public void OnMouseOff()
+        public void UpdateSimulationDisplay(TurnSimulationResult result)
         {
-            this.Visibility = System.Windows.Visibility.Collapsed;
-        }
+            if (result == null)
+            {
+                _simulationText.Visibility = Visibility.Collapsed;
+                return;
+            }
 
-        public void PlayerHandMouseOver(Card card)
-        {
-
-            this.Visibility = System.Windows.Visibility.Visible;
-            this.LblTextArea1.Content = card.Name;
-            this.LblTextArea2.Content = card.Cost;
+            _simulationText.Text = $"Turn {result.Turn} Simulation:\n" +
+                                 $"Win: {result.WinRate:F1}% (Lethal: {result.TheirDeathRate:F1}%)\n" +
+                                 $"Tie: {result.TieRate:F1}%\n" +
+                                 $"Loss: {result.LossRate:F1}% (Lethal: {result.MyDeathRate:F1}%)";
+            _simulationText.Visibility = Visibility.Visible;
         }
     }
 }

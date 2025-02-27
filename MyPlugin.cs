@@ -10,6 +10,7 @@ using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using BattlegroundsGameCollection.Logic;
 using Newtonsoft.Json;
 using System.IO;
+using System.Text.RegularExpressions;
 using HearthMirror;
 using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Stats;
@@ -20,6 +21,16 @@ using System.Collections.Generic;
 
 namespace BattlegroundsGameCollection
 {
+    public class TurnSimulationResult
+    {
+        public int Turn { get; set; }
+        public double WinRate { get; set; }
+        public double TieRate { get; set; }
+        public double LossRate { get; set; }
+        public double TheirDeathRate { get; set; }
+        public double MyDeathRate { get; set; }
+    }
+
     public class BattlegroundsGameData
     {
         public string PlayerIdentifier { get; set; }
@@ -36,6 +47,7 @@ namespace BattlegroundsGameCollection
         public int TriplesCreated { get; set; }
         public List<BoardMinion> FinalBoard { get; set; } = new List<BoardMinion>();
         public int TotalDamageDealt { get; set; }
+        public List<TurnSimulationResult> SimulationResults { get; set; } = new List<TurnSimulationResult>();
     }
 
     public class BoardMinion
@@ -71,6 +83,8 @@ namespace BattlegroundsGameCollection
         private Entity _defendingHero;
         private Entity _lastAttackingHero;
         private int _lastAttackingHeroAttack;
+        private List<TurnSimulationResult> _simulationResults = new List<TurnSimulationResult>();
+        private static readonly Regex SimulationResultRegex = new Regex(@"WinRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\)");
 
         public static InputMoveManager inputMoveManager;
         public PlugInDisplayControl stackPanel;
@@ -290,28 +304,125 @@ namespace BattlegroundsGameCollection
             }
         }
 
+        private void ParseHDTLog()
+        {
+            try
+            {
+                var hdtLogPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "HearthstoneDeckTracker",
+                    "Logs",
+                    "hdt_log.txt"
+                );
+
+                if (!File.Exists(hdtLogPath))
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"HDT log file not found at: {hdtLogPath}");
+                    return;
+                }
+
+                // Try up to 3 times with a small delay between attempts
+                for (int attempt = 1; attempt <= 3; attempt++)
+                {
+                    try
+                    {
+                        string[] logLines;
+                        using (var fileStream = new FileStream(hdtLogPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var reader = new StreamReader(fileStream))
+                        {
+                            logLines = reader.ReadToEnd().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                        }
+
+                        var currentTurn = 0;
+
+                        foreach (var line in logLines)
+                        {
+                            if (line.Contains("OnTurnStart - Turn"))
+                            {
+                                var turnMatch = Regex.Match(line, @"Turn (\d+)");
+                                if (turnMatch.Success)
+                                {
+                                    currentTurn = int.Parse(turnMatch.Groups[1].Value);
+                                }
+                            }
+                            else if (line.Contains("WinRate=") && line.Contains("TieRate=") && line.Contains("LossRate="))
+                            {
+                                var match = SimulationResultRegex.Match(line);
+                                if (match.Success)
+                                {
+                                    var result = new TurnSimulationResult
+                                    {
+                                        Turn = currentTurn,
+                                        WinRate = double.Parse(match.Groups[1].Value),
+                                        TheirDeathRate = double.Parse(match.Groups[2].Value),
+                                        TieRate = double.Parse(match.Groups[3].Value),
+                                        LossRate = double.Parse(match.Groups[4].Value),
+                                        MyDeathRate = double.Parse(match.Groups[5].Value)
+                                    };
+
+                                    // Only add if we don't already have a result for this turn
+                                    if (!_simulationResults.Any(r => r.Turn == currentTurn))
+                                    {
+                                        _simulationResults.Add(result);
+                                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                            $"Added simulation result for turn {currentTurn}: " +
+                                            $"Win={result.WinRate}% (Lethal={result.TheirDeathRate}%), " +
+                                            $"Tie={result.TieRate}%, " +
+                                            $"Loss={result.LossRate}% (Lethal={result.MyDeathRate}%)"
+                                        );
+
+                                        // Update UI with latest simulation result
+                                        if (stackPanel != null)
+                                        {
+                                            stackPanel.UpdateSimulationDisplay(result);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // If we successfully read the file, break out of the retry loop
+                        break;
+                    }
+                    catch (IOException) when (attempt < 3)
+                    {
+                        // If this isn't our last attempt, wait a bit and try again
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Failed to read HDT log on attempt {attempt}, retrying...");
+                        System.Threading.Thread.Sleep(100 * attempt); // Increasing delay with each attempt
+                        continue;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error parsing HDT log: {ex}");
+            }
+        }
+
         private void OnGameEnd()
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
 
-            var stats = Core.Game.CurrentGameStats;
-            if (stats == null)
-            {
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: CurrentGameStats is null");
-                return;
-            }
-
-            var playerEntity = Core.Game.Entities.Values
-                .FirstOrDefault(x => x.IsPlayer);
-            if (playerEntity == null)
-            {
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: Player entity not found");
-                return;
-            }
-
             try
             {
+                ParseHDTLog();
+
+                var stats = Core.Game.CurrentGameStats;
+                if (stats == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: CurrentGameStats is null");
+                    return;
+                }
+
+                var playerEntity = Core.Game.Entities.Values
+                    .FirstOrDefault(x => x.IsPlayer);
+                if (playerEntity == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: Player entity not found");
+                    return;
+                }
+
                 // Debug logging for all relevant data
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== OnGameEnd Debug Information ===");
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Game Mode: {Core.Game.CurrentGameMode}");
@@ -431,7 +542,8 @@ namespace BattlegroundsGameCollection
                     AnomalyName = _currentAnomalyName ?? "None",
                     TriplesCreated = triplesCreated,
                     FinalBoard = finalBoard,
-                    TotalDamageDealt = _totalDamageDealt
+                    TotalDamageDealt = _totalDamageDealt,
+                    SimulationResults = _simulationResults
                 };
 
                 // Log the final game data
@@ -465,10 +577,12 @@ namespace BattlegroundsGameCollection
                     gameEndOverlay.Text = $"Game Summary:\nPlacement: {gameData.Placement}\nMMR Change: {gameData.MmrGained}\nTriples: {gameData.TriplesCreated}";
                     gameEndOverlay.Visibility = System.Windows.Visibility.Visible;
                 }
+
+                // Clear simulation results for next game
+                _simulationResults.Clear();
             }
             catch (Exception ex)
             {
-                // Log any errors that occur
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Failed to save BG game data: {ex.Message}");
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Stack trace: {ex.StackTrace}");
             }
