@@ -1,0 +1,5 @@
+Ongoing issues:
+
+- Can't find the updated mmr after game End
+- Can't figure out damage dealt per turn
+- Need to implement reading logs to figure out the Bob's Buddy Output
