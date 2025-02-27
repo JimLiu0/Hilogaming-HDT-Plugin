@@ -44,18 +44,21 @@ namespace BattlegroundsGameCollection.Controls
             Children.Add(_simulationText);
         }
 
-        public void UpdateSimulationDisplay(TurnSimulationResult result)
+        public void UpdateSimulationDisplay(TurnData turnData)
         {
-            if (result == null)
+            if (turnData == null)
             {
                 _simulationText.Visibility = Visibility.Collapsed;
                 return;
             }
 
-            _simulationText.Text = $"Turn {result.Turn} Simulation:\n" +
-                                 $"Win: {result.WinRate:F1}% (Lethal: {result.TheirDeathRate:F1}%)\n" +
-                                 $"Tie: {result.TieRate:F1}%\n" +
-                                 $"Loss: {result.LossRate:F1}% (Lethal: {result.MyDeathRate:F1}%)";
+            _simulationText.Text = $"Turn {turnData.Turn} Stats:\n" +
+                                  $"Win: {turnData.WinRate:F1}% (Lethal: {turnData.TheirDeathRate:F1}%)\n" +
+                                  $"Tie: {turnData.TieRate:F1}%\n" +
+                                  $"Loss: {turnData.LossRate:F1}% (Lethal: {turnData.MyDeathRate:F1}%)\n" +
+                                  $"Minions Played: {turnData.NumMinionsPlayedThisTurn}\n" +
+                                  $"Spells Played: {turnData.NumSpellsPlayedThisGame}\n" +
+                                  $"Resources Spent: {turnData.NumResourcesSpentThisGame}";
             _simulationText.Visibility = Visibility.Visible;
         }
     }

@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace BattlegroundsGameCollection
 {
-    public class TurnSimulationResult
+    public class TurnData
     {
         public int Turn { get; set; }
         public double WinRate { get; set; }
@@ -29,6 +29,9 @@ namespace BattlegroundsGameCollection
         public double LossRate { get; set; }
         public double TheirDeathRate { get; set; }
         public double MyDeathRate { get; set; }
+        public int NumMinionsPlayedThisTurn { get; set; }
+        public int NumSpellsPlayedThisGame { get; set; }
+        public int NumResourcesSpentThisGame { get; set; }
     }
 
     public class BattlegroundsGameData
@@ -47,7 +50,7 @@ namespace BattlegroundsGameCollection
         public int TriplesCreated { get; set; }
         public List<BoardMinion> FinalBoard { get; set; } = new List<BoardMinion>();
         public int TotalDamageDealt { get; set; }
-        public List<TurnSimulationResult> SimulationResults { get; set; } = new List<TurnSimulationResult>();
+        public List<TurnData> Turns { get; set; } = new List<TurnData>();
     }
 
     public class BoardMinion
@@ -83,7 +86,7 @@ namespace BattlegroundsGameCollection
         private Entity _defendingHero;
         private Entity _lastAttackingHero;
         private int _lastAttackingHeroAttack;
-        private List<TurnSimulationResult> _simulationResults = new List<TurnSimulationResult>();
+        private List<TurnData> _turns = new List<TurnData>();
         private static readonly Regex SimulationResultRegex = new Regex(@"WinRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\)");
 
         public static InputMoveManager inputMoveManager;
@@ -129,6 +132,53 @@ namespace BattlegroundsGameCollection
                 _currentHeroId = hero.CardId;
                 _currentHeroName = hero.Card?.LocalizedName;
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Hero: {_currentHeroName} ({_currentHeroId})");
+            }
+
+            var opponent = Core.Game.Opponent.Hero;
+            if (opponent != null)
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Opponent: {opponent.Card?.LocalizedName} ({opponent.CardId})");
+            }
+
+            // Track turn statistics
+            var playerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
+            if (playerEntity != null)
+            {
+                var currentTurn = Core.Game.GetTurnNumber();
+                var turnData = new TurnData
+                {
+                    Turn = currentTurn,
+                    NumMinionsPlayedThisTurn = playerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN),
+                    NumSpellsPlayedThisGame = playerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME),
+                    NumResourcesSpentThisGame = playerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME)
+                };
+
+                // Only add if we don't already have data for this turn
+                if (!_turns.Any(t => t.Turn == currentTurn))
+                {
+                    _turns.Add(turnData);
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                        $"Added turn data for turn {currentTurn}: " +
+                        $"Minions={turnData.NumMinionsPlayedThisTurn}, " +
+                        $"Spells={turnData.NumSpellsPlayedThisGame}, " +
+                        $"Resources={turnData.NumResourcesSpentThisGame}"
+                    );
+                }
+                else
+                {
+                    // Update existing turn data
+                    var existingTurn = _turns.First(t => t.Turn == currentTurn);
+                    existingTurn.NumMinionsPlayedThisTurn = turnData.NumMinionsPlayedThisTurn;
+                    existingTurn.NumSpellsPlayedThisGame = turnData.NumSpellsPlayedThisGame;
+                    existingTurn.NumResourcesSpentThisGame = turnData.NumResourcesSpentThisGame;
+                }
+
+                _triplesCreated = playerEntity.GetTag(GameTag.PLAYER_TRIPLES);
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Player Entity found, Triples: {_triplesCreated}, Tags: {string.Join(", ", playerEntity.Tags.Select(t => $"{t.Key}={t.Value}"))}");
+            }
+            else
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnTurnStart - Player Entity not found");
             }
 
             // Check combat phase
@@ -183,19 +233,6 @@ namespace BattlegroundsGameCollection
                     Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Combat ended. Damage dealt this combat: {_lastCombatDamageDealt}");
                     _totalDamageDealt += _lastCombatDamageDealt;
                 }
-            }
-
-            // Track triples created this turn
-            var playerEntity = Core.Game.Entities.Values
-                .FirstOrDefault(x => x.IsPlayer);
-            if (playerEntity != null)
-            {
-                _triplesCreated = playerEntity.GetTag(GameTag.PLAYER_TRIPLES);
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Player Entity found, Triples: {_triplesCreated}, Tags: {string.Join(", ", playerEntity.Tags.Select(t => $"{t.Key}={t.Value}"))}");
-            }
-            else
-            {
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnTurnStart - Player Entity not found");
             }
         }
 
@@ -350,32 +387,32 @@ namespace BattlegroundsGameCollection
                                 var match = SimulationResultRegex.Match(line);
                                 if (match.Success)
                                 {
-                                    var result = new TurnSimulationResult
+                                    // Get or create turn data
+                                    var turnData = _turns.FirstOrDefault(t => t.Turn == currentTurn);
+                                    if (turnData == null)
                                     {
-                                        Turn = currentTurn,
-                                        WinRate = double.Parse(match.Groups[1].Value),
-                                        TheirDeathRate = double.Parse(match.Groups[2].Value),
-                                        TieRate = double.Parse(match.Groups[3].Value),
-                                        LossRate = double.Parse(match.Groups[4].Value),
-                                        MyDeathRate = double.Parse(match.Groups[5].Value)
-                                    };
+                                        turnData = new TurnData { Turn = currentTurn };
+                                        _turns.Add(turnData);
+                                    }
 
-                                    // Only add if we don't already have a result for this turn
-                                    if (!_simulationResults.Any(r => r.Turn == currentTurn))
+                                    // Update simulation results
+                                    turnData.WinRate = double.Parse(match.Groups[1].Value);
+                                    turnData.TheirDeathRate = double.Parse(match.Groups[2].Value);
+                                    turnData.TieRate = double.Parse(match.Groups[3].Value);
+                                    turnData.LossRate = double.Parse(match.Groups[4].Value);
+                                    turnData.MyDeathRate = double.Parse(match.Groups[5].Value);
+
+                                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                        $"Updated turn {currentTurn} with simulation results: " +
+                                        $"Win={turnData.WinRate}% (Lethal={turnData.TheirDeathRate}%), " +
+                                        $"Tie={turnData.TieRate}%, " +
+                                        $"Loss={turnData.LossRate}% (Lethal={turnData.MyDeathRate}%)"
+                                    );
+
+                                    // Update UI with latest simulation result
+                                    if (stackPanel != null)
                                     {
-                                        _simulationResults.Add(result);
-                                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                                            $"Added simulation result for turn {currentTurn}: " +
-                                            $"Win={result.WinRate}% (Lethal={result.TheirDeathRate}%), " +
-                                            $"Tie={result.TieRate}%, " +
-                                            $"Loss={result.LossRate}% (Lethal={result.MyDeathRate}%)"
-                                        );
-
-                                        // Update UI with latest simulation result
-                                        if (stackPanel != null)
-                                        {
-                                            stackPanel.UpdateSimulationDisplay(result);
-                                        }
+                                        stackPanel.UpdateSimulationDisplay(turnData);
                                     }
                                 }
                             }
@@ -543,7 +580,7 @@ namespace BattlegroundsGameCollection
                     TriplesCreated = triplesCreated,
                     FinalBoard = finalBoard,
                     TotalDamageDealt = _totalDamageDealt,
-                    SimulationResults = _simulationResults
+                    Turns = _turns
                 };
 
                 // Log the final game data
@@ -579,7 +616,7 @@ namespace BattlegroundsGameCollection
                 }
 
                 // Clear simulation results for next game
-                _simulationResults.Clear();
+                _turns.Clear();
             }
             catch (Exception ex)
             {

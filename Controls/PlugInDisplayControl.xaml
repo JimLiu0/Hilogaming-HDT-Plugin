@@ -16,9 +16,6 @@
     lex:ResxLocalizationProvider.DefaultDictionary="LocalizeTools"
     Visibility="Visible"
     mc:Ignorable="d">
-    <StackPanel.Resources>
-        <themes:ThemeManager x:Key="ThemeManager" />
-    </StackPanel.Resources>
     <Grid MinWidth="50" MinHeight="50">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
