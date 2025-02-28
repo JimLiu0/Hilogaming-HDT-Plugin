@@ -52,13 +52,37 @@ namespace BattlegroundsGameCollection.Controls
                 return;
             }
 
-            _simulationText.Text = $"Turn {turnData.Turn} Stats:\n" +
-                                  $"Win: {turnData.WinRate:F1}% (Lethal: {turnData.TheirDeathRate:F1}%)\n" +
-                                  $"Tie: {turnData.TieRate:F1}%\n" +
-                                  $"Loss: {turnData.LossRate:F1}% (Lethal: {turnData.MyDeathRate:F1}%)\n" +
-                                  $"Minions Played: {turnData.NumMinionsPlayedThisTurn}\n" +
-                                  $"Spells Played: {turnData.NumSpellsPlayedThisGame}\n" +
-                                  $"Resources Spent: {turnData.NumResourcesSpentThisGame}";
+            var text = $"Turn {turnData.Turn} Stats:\n" +
+                       $"Win: {turnData.WinRate:F1}% (Lethal: {turnData.TheirDeathRate:F1}%)\n" +
+                       $"Tie: {turnData.TieRate:F1}%\n" +
+                       $"Loss: {turnData.LossRate:F1}% (Lethal: {turnData.MyDeathRate:F1}%)\n" +
+                       $"Minions Played: {turnData.NumMinionsPlayedThisTurn}\n" +
+                       $"Spells Played: {turnData.NumSpellsPlayedThisGame}\n" +
+                       $"Resources Spent: {turnData.NumResourcesSpentThisGame}\n\n";
+
+            // Add combat results if available
+            if (turnData.CombatResult != null)
+            {
+                text += $"Last Combat vs {turnData.CombatResult.OpponentHeroName}:\n" +
+                        $"Damage Dealt: {turnData.CombatResult.DamageDealt}\n" +
+                        $"  Armor: {turnData.CombatResult.ArmorDamageDealt}\n" +
+                        $"  Health: {turnData.CombatResult.HealthDamageDealt}\n" +
+                        $"Damage Taken: {turnData.CombatResult.DamageTaken}\n" +
+                        $"  Armor: {turnData.CombatResult.ArmorDamageTaken}\n" +
+                        $"  Health: {turnData.CombatResult.HealthDamageTaken}\n" +
+                        $"Result: {(turnData.CombatResult.Won ? "Won" : "Lost")}\n\n";
+            }
+
+            text += "Player Health:\n";
+            foreach (var player in turnData.PlayerHealths.OrderBy(p => p.PlayerId))
+            {
+                text += $"{player.HeroName}: {player.Health}";
+                if (player.Armor > 0)
+                    text += $" (+{player.Armor} Armor)";
+                text += "\n";
+            }
+
+            _simulationText.Text = text;
             _simulationText.Visibility = Visibility.Visible;
         }
     }

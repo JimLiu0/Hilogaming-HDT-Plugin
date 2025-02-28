@@ -21,6 +21,30 @@ using System.Collections.Generic;
 
 namespace BattlegroundsGameCollection
 {
+    public class PlayerHealthInfo
+    {
+        public string PlayerId { get; set; }
+        public string PlayerName { get; set; }
+        public string HeroCardId { get; set; }
+        public string HeroName { get; set; }
+        public int Health { get; set; }
+        public int Armor { get; set; }
+        public int TotalHealth => Health + Armor;
+    }
+
+    public class CombatResult
+    {
+        public string OpponentHeroId { get; set; }
+        public string OpponentHeroName { get; set; }
+        public int DamageDealt { get; set; }
+        public int DamageTaken { get; set; }
+        public int ArmorDamageDealt { get; set; }
+        public int ArmorDamageTaken { get; set; }
+        public int HealthDamageDealt { get; set; }
+        public int HealthDamageTaken { get; set; }
+        public bool Won { get; set; }
+    }
+
     public class TurnData
     {
         public int Turn { get; set; }
@@ -32,6 +56,8 @@ namespace BattlegroundsGameCollection
         public int NumMinionsPlayedThisTurn { get; set; }
         public int NumSpellsPlayedThisGame { get; set; }
         public int NumResourcesSpentThisGame { get; set; }
+        public List<PlayerHealthInfo> PlayerHealths { get; set; } = new List<PlayerHealthInfo>();
+        public CombatResult CombatResult { get; set; }
     }
 
     public class BattlegroundsGameData
@@ -88,6 +114,9 @@ namespace BattlegroundsGameCollection
         private int _lastAttackingHeroAttack;
         private List<TurnData> _turns = new List<TurnData>();
         private static readonly Regex SimulationResultRegex = new Regex(@"WinRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\)");
+        private static readonly Regex OpponentSnapshotRegex = new Regex(@"BattlegroundsBoardState\.SnapshotCurrentBoard >> Snapshotting board state for (.*?) with player id (\d+)");
+        private string _currentOpponentName;
+        private string _currentOpponentId;
 
         public static InputMoveManager inputMoveManager;
         public PlugInDisplayControl stackPanel;
@@ -134,12 +163,6 @@ namespace BattlegroundsGameCollection
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Hero: {_currentHeroName} ({_currentHeroId})");
             }
 
-            var opponent = Core.Game.Opponent.Hero;
-            if (opponent != null)
-            {
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Opponent: {opponent.Card?.LocalizedName} ({opponent.CardId})");
-            }
-
             // Track turn statistics
             var playerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
             if (playerEntity != null)
@@ -153,6 +176,89 @@ namespace BattlegroundsGameCollection
                     NumResourcesSpentThisGame = playerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME)
                 };
 
+                // Get all heroes in the game
+                var heroes = Core.Game.Entities.Values
+                    .Where(e => e.IsHero && e.HasTag(GameTag.PLAYER_ID))
+                    .OrderBy(e => e.GetTag(GameTag.PLAYER_ID));
+
+                foreach (var heroEntity in heroes)
+                {
+                    var playerId = heroEntity.GetTag(GameTag.PLAYER_ID);
+                    var playerName = Core.Game.Entities.Values
+                        .FirstOrDefault(e => e.HasTag(GameTag.PLAYER_ID) && e.GetTag(GameTag.PLAYER_ID) == playerId && e.HasTag(GameTag.PLAYSTATE))
+                        ?.GetTag(GameTag.PLAYER_ID)
+                        .ToString() ?? "Unknown";
+
+                    var healthInfo = new PlayerHealthInfo
+                    {
+                        PlayerId = playerId.ToString(),
+                        PlayerName = playerName,
+                        HeroCardId = heroEntity.CardId,
+                        HeroName = heroEntity.Card?.LocalizedName ?? "Unknown",
+                        Health = heroEntity.GetTag(GameTag.HEALTH),
+                        Armor = heroEntity.GetTag(GameTag.ARMOR)
+                    };
+
+                    turnData.PlayerHealths.Add(healthInfo);
+
+                    // Log each player's health info
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                        $"Player Health Info - Turn {currentTurn}: " +
+                        $"Player={healthInfo.PlayerName} ({healthInfo.PlayerId}), " +
+                        $"Hero={healthInfo.HeroName} ({healthInfo.HeroCardId}), " +
+                        $"Health={healthInfo.Health}, Armor={healthInfo.Armor}, " +
+                        $"Total={healthInfo.TotalHealth}"
+                    );
+                }
+
+                // If we have a last combat opponent, calculate combat results
+                if (_lastCombatOpponent != null)
+                {
+                    var previousTurn = _turns.LastOrDefault();
+                    if (previousTurn != null)
+                    {
+                        var previousOpponentHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _lastCombatOpponent.CardId);
+                        var currentOpponentHealth = turnData.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _lastCombatOpponent.CardId);
+                        var previousPlayerHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
+                        var currentPlayerHealth = turnData.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
+
+                        if (previousOpponentHealth != null && currentOpponentHealth != null && 
+                            previousPlayerHealth != null && currentPlayerHealth != null)
+                        {
+                            // Calculate armor and health changes for opponent
+                            var opponentArmorLost = Math.Max(0, previousOpponentHealth.Armor - currentOpponentHealth.Armor);
+                            var opponentHealthLost = Math.Max(0, previousOpponentHealth.Health - currentOpponentHealth.Health);
+                            var damageToOpponent = opponentArmorLost + opponentHealthLost;
+
+                            // Calculate armor and health changes for player
+                            var playerArmorLost = Math.Max(0, previousPlayerHealth.Armor - currentPlayerHealth.Armor);
+                            var playerHealthLost = Math.Max(0, previousPlayerHealth.Health - currentPlayerHealth.Health);
+                            var damageToPlayer = playerArmorLost + playerHealthLost;
+
+                            turnData.CombatResult = new CombatResult
+                            {
+                                OpponentHeroId = _lastCombatOpponent.CardId,
+                                OpponentHeroName = _lastCombatOpponent.Card?.LocalizedName ?? "Unknown",
+                                DamageDealt = damageToOpponent,
+                                DamageTaken = damageToPlayer,
+                                ArmorDamageDealt = opponentArmorLost,
+                                ArmorDamageTaken = playerArmorLost,
+                                HealthDamageDealt = opponentHealthLost,
+                                HealthDamageTaken = playerHealthLost,
+                                Won = damageToOpponent > damageToPlayer
+                            };
+
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                $"Combat Result - Turn {currentTurn}: " +
+                                $"Opponent={turnData.CombatResult.OpponentHeroName}, " +
+                                $"DamageDealt={turnData.CombatResult.DamageDealt} (Armor: {turnData.CombatResult.ArmorDamageDealt}, Health: {turnData.CombatResult.HealthDamageDealt}), " +
+                                $"DamageTaken={turnData.CombatResult.DamageTaken} (Armor: {turnData.CombatResult.ArmorDamageTaken}, Health: {turnData.CombatResult.HealthDamageTaken}), " +
+                                $"Won={turnData.CombatResult.Won}"
+                            );
+                        }
+                    }
+                }
+
                 // Only add if we don't already have data for this turn
                 if (!_turns.Any(t => t.Turn == currentTurn))
                 {
@@ -161,7 +267,8 @@ namespace BattlegroundsGameCollection
                         $"Added turn data for turn {currentTurn}: " +
                         $"Minions={turnData.NumMinionsPlayedThisTurn}, " +
                         $"Spells={turnData.NumSpellsPlayedThisGame}, " +
-                        $"Resources={turnData.NumResourcesSpentThisGame}"
+                        $"Resources={turnData.NumResourcesSpentThisGame}, " +
+                        $"Players tracked={turnData.PlayerHealths.Count}"
                     );
                 }
                 else
@@ -171,6 +278,8 @@ namespace BattlegroundsGameCollection
                     existingTurn.NumMinionsPlayedThisTurn = turnData.NumMinionsPlayedThisTurn;
                     existingTurn.NumSpellsPlayedThisGame = turnData.NumSpellsPlayedThisGame;
                     existingTurn.NumResourcesSpentThisGame = turnData.NumResourcesSpentThisGame;
+                    existingTurn.PlayerHealths = turnData.PlayerHealths;
+                    existingTurn.CombatResult = turnData.CombatResult;
                 }
 
                 _triplesCreated = playerEntity.GetTag(GameTag.PLAYER_TRIPLES);
@@ -261,6 +370,8 @@ namespace BattlegroundsGameCollection
                 _triplesCreated = 0;
                 _currentHeroId = null;
                 _currentHeroName = null;
+                _lastCombatOpponent = null;
+                _lastCombatDamageDealt = 0;
                 gameStartTime = DateTime.Now;
                 
                 // Try to get hero immediately
@@ -382,6 +493,16 @@ namespace BattlegroundsGameCollection
                                     currentTurn = int.Parse(turnMatch.Groups[1].Value);
                                 }
                             }
+                            else if (line.Contains("BattlegroundsBoardState.SnapshotCurrentBoard"))
+                            {
+                                var opponentMatch = OpponentSnapshotRegex.Match(line);
+                                if (opponentMatch.Success)
+                                {
+                                    _currentOpponentName = opponentMatch.Groups[1].Value;
+                                    _currentOpponentId = opponentMatch.Groups[2].Value;
+                                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found opponent: {_currentOpponentName} (ID: {_currentOpponentId})");
+                                }
+                            }
                             else if (line.Contains("WinRate=") && line.Contains("TieRate=") && line.Contains("LossRate="))
                             {
                                 var match = SimulationResultRegex.Match(line);
@@ -401,6 +522,46 @@ namespace BattlegroundsGameCollection
                                     turnData.TieRate = double.Parse(match.Groups[3].Value);
                                     turnData.LossRate = double.Parse(match.Groups[4].Value);
                                     turnData.MyDeathRate = double.Parse(match.Groups[5].Value);
+
+                                    // Create combat result if we have opponent info
+                                    if (!string.IsNullOrEmpty(_currentOpponentName))
+                                    {
+                                        var previousTurn = _turns.LastOrDefault(t => t.Turn < currentTurn);
+                                        if (previousTurn != null)
+                                        {
+                                            var previousOpponentHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.PlayerId == _currentOpponentId);
+                                            var currentOpponentHealth = turnData.PlayerHealths.FirstOrDefault(p => p.PlayerId == _currentOpponentId);
+                                            var previousPlayerHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
+                                            var currentPlayerHealth = turnData.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
+
+                                            if (previousOpponentHealth != null && currentOpponentHealth != null && 
+                                                previousPlayerHealth != null && currentPlayerHealth != null)
+                                            {
+                                                // Calculate armor and health changes for opponent
+                                                var opponentArmorLost = Math.Max(0, previousOpponentHealth.Armor - currentOpponentHealth.Armor);
+                                                var opponentHealthLost = Math.Max(0, previousOpponentHealth.Health - currentOpponentHealth.Health);
+                                                var damageToOpponent = opponentArmorLost + opponentHealthLost;
+
+                                                // Calculate armor and health changes for player
+                                                var playerArmorLost = Math.Max(0, previousPlayerHealth.Armor - currentPlayerHealth.Armor);
+                                                var playerHealthLost = Math.Max(0, previousPlayerHealth.Health - currentPlayerHealth.Health);
+                                                var damageToPlayer = playerArmorLost + playerHealthLost;
+
+                                                turnData.CombatResult = new CombatResult
+                                                {
+                                                    OpponentHeroId = _currentOpponentId,
+                                                    OpponentHeroName = _currentOpponentName,
+                                                    DamageDealt = damageToOpponent,
+                                                    DamageTaken = damageToPlayer,
+                                                    ArmorDamageDealt = opponentArmorLost,
+                                                    ArmorDamageTaken = playerArmorLost,
+                                                    HealthDamageDealt = opponentHealthLost,
+                                                    HealthDamageTaken = playerHealthLost,
+                                                    Won = damageToOpponent > damageToPlayer
+                                                };
+                                            }
+                                        }
+                                    }
 
                                     Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
                                         $"Updated turn {currentTurn} with simulation results: " +
