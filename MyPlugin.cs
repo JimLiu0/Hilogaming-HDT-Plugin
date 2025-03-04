@@ -1,8 +1,5 @@
 ﻿using Hearthstone_Deck_Tracker.API;
-using BattlegroundsGameCollection.Controls;
-using BattlegroundsGameCollection.Properties;
 using System;
-using System.Windows.Controls;
 using System.Windows.Media;
 using Core = Hearthstone_Deck_Tracker.API.Core;
 using Hearthstone_Deck_Tracker.Enums;
@@ -16,8 +13,8 @@ using Hearthstone_Deck_Tracker.Hearthstone;
 using Hearthstone_Deck_Tracker.Stats;
 using HearthDb.Enums;
 using System.Linq;
-using System.Windows;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BattlegroundsGameCollection
 {
@@ -28,21 +25,10 @@ namespace BattlegroundsGameCollection
         public string HeroCardId { get; set; }
         public string HeroName { get; set; }
         public int Health { get; set; }
-        public int Armor { get; set; }
-        public int TotalHealth => Health + Armor;
-    }
-
-    public class CombatResult
-    {
-        public string OpponentHeroId { get; set; }
-        public string OpponentHeroName { get; set; }
-        public int DamageDealt { get; set; }
-        public int DamageTaken { get; set; }
-        public int ArmorDamageDealt { get; set; }
-        public int ArmorDamageTaken { get; set; }
-        public int HealthDamageDealt { get; set; }
-        public int HealthDamageTaken { get; set; }
-        public bool Won { get; set; }
+        public int CurrentArmor { get; set; }
+        public int InitialArmor { get; set; }
+        public int Damage { get; set; }
+        public int TotalHealth => Health - Damage + CurrentArmor;
     }
 
     public class TurnData
@@ -53,11 +39,15 @@ namespace BattlegroundsGameCollection
         public double LossRate { get; set; }
         public double TheirDeathRate { get; set; }
         public double MyDeathRate { get; set; }
+        public string ActualCombatResult { get; set; }  // "Win", "Loss", or "Tie"
+        public string ActualLethalResult { get; set; }  // "NoOneDied", "OpponentDied", or "FriendlyDied"
         public int NumMinionsPlayedThisTurn { get; set; }
         public int NumSpellsPlayedThisGame { get; set; }
         public int NumResourcesSpentThisGame { get; set; }
+        [JsonIgnore]
         public List<PlayerHealthInfo> PlayerHealths { get; set; } = new List<PlayerHealthInfo>();
-        public CombatResult CombatResult { get; set; }
+        public int HeroDamage { get; set; } // Positive if we dealt damage, negative if we took damage, 0 for tie
+        public string OpponentId { get; set; } // Store opponent's ID for this turn
     }
 
     public class BattlegroundsGameData
@@ -74,8 +64,8 @@ namespace BattlegroundsGameCollection
         public string AnomalyId { get; set; }
         public string AnomalyName { get; set; }
         public int TriplesCreated { get; set; }
+        public string Region { get; set; }
         public List<BoardMinion> FinalBoard { get; set; } = new List<BoardMinion>();
-        public int TotalDamageDealt { get; set; }
         public List<TurnData> Turns { get; set; } = new List<TurnData>();
     }
 
@@ -89,14 +79,12 @@ namespace BattlegroundsGameCollection
         public bool IsDivineShield { get; set; }
         public bool IsReborn { get; set; }
         public bool IsPoisonous { get; set; }
+        public bool isVenomous { get; set; }
         public List<string> Enchantments { get; set; } = new List<string>();
     }
 
     public class BattlegroundsGameCollection : IDisposable
     {
-        private string panelName = "pluginStackPanelView";
-        private TextBlock gameStartOverlay;
-        private TextBlock gameEndOverlay;
         private DateTime gameStartTime;
         private int _totalDamageDealt;
         private int _triplesCreated;
@@ -108,42 +96,23 @@ namespace BattlegroundsGameCollection
         private int _lastCombatDamageDealt;
         private bool _isInCombat;
         private Entity _lastCombatOpponent;
-        private Entity _attackingHero;
-        private Entity _defendingHero;
-        private Entity _lastAttackingHero;
-        private int _lastAttackingHeroAttack;
         private List<TurnData> _turns = new List<TurnData>();
         private static readonly Regex SimulationResultRegex = new Regex(@"WinRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)% \(Lethal=(\d+(?:\.\d+)?)%\)");
         private static readonly Regex OpponentSnapshotRegex = new Regex(@"BattlegroundsBoardState\.SnapshotCurrentBoard >> Snapshotting board state for (.*?) with player id (\d+)");
+        private static readonly Regex CombatValidationRegex = new Regex(@"BobsBuddyInvoker\.ValidateSimulationResultAsync >> result=(\w+), lethalResult=(\w+)");
         private string _currentOpponentName;
         private string _currentOpponentId;
 
-        public static InputMoveManager inputMoveManager;
-        public PlugInDisplayControl stackPanel;
+        private readonly InputMoveManager inputMoveManager;
 
         public BattlegroundsGameCollection()
         {
-            InitViewPanel();
+            inputMoveManager = new InputMoveManager();
             GameEvents.OnGameStart.Add(OnGameStart);
             GameEvents.OnGameEnd.Add(OnGameEnd);
-            GameEvents.OnInMenu.Add(OnInMenu);
             GameEvents.OnTurnStart.Add(OnTurnStart);
             GameEvents.OnPlayerCreateInPlay.Add(OnPlayerCreateInPlay);
-            
-            // Track damage
             GameEvents.OnEntityWillTakeDamage.Add(OnEntityWillTakeDamage);
-        }
-
-        private void OnInMenu()
-        {
-            // Get starting MMR when in menu
-            var stats = Core.Game.CurrentGameStats;
-            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnInMenu - GameStats: {stats != null}, GameMode: {stats?.GameMode}, MMR: {stats?.BattlegroundsRating}");
-            if (stats != null && stats.GameMode == GameMode.Battlegrounds)
-            {
-                _startingMmr = stats.BattlegroundsRating;
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnInMenu - Set starting MMR to: {_startingMmr}");
-            }
         }
 
         private void OnTurnStart(ActivePlayer player)
@@ -165,30 +134,108 @@ namespace BattlegroundsGameCollection
 
             // Track turn statistics
             var playerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
+            var currentTurn = Core.Game.GetTurnNumber();
+
+            // Get all player entities by leaderboard place
+            var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
+
+            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found {playerEntities.Count} player entities with leaderboard places");
+
+            // Create or get current turn data
+            var turnData = _turns.FirstOrDefault(t => t.Turn == currentTurn);
+            if (turnData == null)
+            {
+                turnData = new TurnData { 
+                    Turn = currentTurn,
+                    NumMinionsPlayedThisTurn = playerEntity?.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN) ?? 0,
+                    NumSpellsPlayedThisGame = playerEntity?.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME) ?? 0,
+                    NumResourcesSpentThisGame = playerEntity?.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME) ?? 0
+                };
+                _turns.Add(turnData);
+            }
+
+            // Set opponent ID from the next opponent player ID tag
             if (playerEntity != null)
             {
-                var currentTurn = Core.Game.GetTurnNumber();
-                var turnData = new TurnData
+                var nextOpponentId = playerEntity.GetTag(GameTag.NEXT_OPPONENT_PLAYER_ID);
+                if (nextOpponentId > 0)
                 {
-                    Turn = currentTurn,
-                    NumMinionsPlayedThisTurn = playerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN),
-                    NumSpellsPlayedThisGame = playerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME),
-                    NumResourcesSpentThisGame = playerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME)
-                };
+                    turnData.OpponentId = nextOpponentId.ToString();
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Set opponent ID for turn {currentTurn} to {nextOpponentId}");
 
-                // Get all heroes in the game
-                var heroes = Core.Game.Entities.Values
-                    .Where(e => e.IsHero && e.HasTag(GameTag.PLAYER_ID))
-                    .OrderBy(e => e.GetTag(GameTag.PLAYER_ID));
+                    // Calculate hero damage based on health changes if we have previous turn data
+                    if (currentTurn > 1)
+                    {
+                        var previousTurn = _turns.FirstOrDefault(t => t.Turn == currentTurn - 1);
+                        if (previousTurn != null)
+                        {
+                            var ourPreviousHealth = previousTurn.PlayerHealths
+                                .FirstOrDefault(p => p.PlayerId == Core.Game.Player.Id.ToString());
+                            var ourCurrentHealth = turnData.PlayerHealths
+                                .FirstOrDefault(p => p.PlayerId == Core.Game.Player.Id.ToString());
+                            var theirPreviousHealth = previousTurn.PlayerHealths
+                                .FirstOrDefault(p => p.PlayerId == turnData.OpponentId);
+                            var theirCurrentHealth = turnData.PlayerHealths
+                                .FirstOrDefault(p => p.PlayerId == turnData.OpponentId);
 
-                foreach (var heroEntity in heroes)
+                            // Log health values for debugging
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                $"Turn {currentTurn} health values:" +
+                                $"\nOur Previous Health: {ourPreviousHealth?.TotalHealth}" +
+                                $"\nOur Current Health: {ourCurrentHealth?.TotalHealth}" +
+                                $"\nTheir Previous Health: {theirPreviousHealth?.TotalHealth}" +
+                                $"\nTheir Current Health: {theirCurrentHealth?.TotalHealth}");
+
+                            // Calculate hero damage based on health differences
+                            if (ourPreviousHealth != null && ourCurrentHealth != null && 
+                                theirPreviousHealth != null && theirCurrentHealth != null)
+                            {
+                                var ourHealthDiff = ourPreviousHealth.TotalHealth - ourCurrentHealth.TotalHealth;
+                                var theirHealthDiff = theirPreviousHealth.TotalHealth - theirCurrentHealth.TotalHealth;
+
+                                if (theirHealthDiff > 0)
+                                {
+                                    // We dealt damage
+                                    turnData.HeroDamage = theirHealthDiff;
+                                }
+                                else if (ourHealthDiff > 0)
+                                {
+                                    // We took damage
+                                    turnData.HeroDamage = -ourHealthDiff;
+                                }
+                                else
+                                {
+                                    // No health changes - likely a tie
+                                    turnData.HeroDamage = 0;
+                                }
+
+                                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                    $"Turn {currentTurn} hero damage calculation:" +
+                                    $"\nOur Health Diff: {ourHealthDiff}" +
+                                    $"\nTheir Health Diff: {theirHealthDiff}" +
+                                    $"\nFinal Hero Damage: {turnData.HeroDamage}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Process player health info
+            for (int i = 0; i < playerEntities.Count; i++)
+            {
+                var pey = playerEntities[i];
+                var playerId = pey.GetTag(GameTag.PLAYER_ID);
+                var playerName = Core.Game.Entities.Values
+                    .FirstOrDefault(e => e.HasTag(GameTag.PLAYER_ID) && e.GetTag(GameTag.PLAYER_ID) == playerId && e.HasTag(GameTag.PLAYSTATE))
+                    ?.GetTag(GameTag.PLAYER_ID)
+                    .ToString() ?? "Unknown";
+
+                // Get the hero entity for this player
+                var heroEntity = Core.Game.Entities.Values
+                    .FirstOrDefault(e => e.IsHero && e.GetTag(GameTag.PLAYER_ID) == playerId);
+
+                if (heroEntity != null)
                 {
-                    var playerId = heroEntity.GetTag(GameTag.PLAYER_ID);
-                    var playerName = Core.Game.Entities.Values
-                        .FirstOrDefault(e => e.HasTag(GameTag.PLAYER_ID) && e.GetTag(GameTag.PLAYER_ID) == playerId && e.HasTag(GameTag.PLAYSTATE))
-                        ?.GetTag(GameTag.PLAYER_ID)
-                        .ToString() ?? "Unknown";
-
                     var healthInfo = new PlayerHealthInfo
                     {
                         PlayerId = playerId.ToString(),
@@ -196,153 +243,52 @@ namespace BattlegroundsGameCollection
                         HeroCardId = heroEntity.CardId,
                         HeroName = heroEntity.Card?.LocalizedName ?? "Unknown",
                         Health = heroEntity.GetTag(GameTag.HEALTH),
-                        Armor = heroEntity.GetTag(GameTag.ARMOR)
+                        CurrentArmor = heroEntity.GetTag(GameTag.ARMOR),
+                        InitialArmor = currentTurn == 1 ? heroEntity.GetTag(GameTag.ARMOR) : turnData.PlayerHealths.Find(p => p.PlayerId == playerId.ToString())?.InitialArmor ?? 0,
+                        Damage = heroEntity.GetTag(GameTag.DAMAGE)
                     };
 
                     turnData.PlayerHealths.Add(healthInfo);
 
-                    // Log each player's health info
+                    // Log each player's health info with detailed damage info
                     Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
                         $"Player Health Info - Turn {currentTurn}: " +
                         $"Player={healthInfo.PlayerName} ({healthInfo.PlayerId}), " +
                         $"Hero={healthInfo.HeroName} ({healthInfo.HeroCardId}), " +
-                        $"Health={healthInfo.Health}, Armor={healthInfo.Armor}, " +
-                        $"Total={healthInfo.TotalHealth}"
+                        $"Base Health={healthInfo.Health}, " +
+                        $"Current Armor={healthInfo.CurrentArmor}, " +
+                        $"Initial Armor={healthInfo.InitialArmor}, " +
+                        $"Damage={healthInfo.Damage}, " +
+                        $"Total Health={healthInfo.TotalHealth}"
                     );
+
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Checking all hero data for , Tags: {string.Join(", ", heroEntity.Tags.Select(t => $"{t.Key}={t.Value}"))}");
                 }
+            }
 
-                // If we have a last combat opponent, calculate combat results
-                if (_lastCombatOpponent != null)
-                {
-                    var previousTurn = _turns.LastOrDefault();
-                    if (previousTurn != null)
-                    {
-                        var previousOpponentHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _lastCombatOpponent.CardId);
-                        var currentOpponentHealth = turnData.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _lastCombatOpponent.CardId);
-                        var previousPlayerHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
-                        var currentPlayerHealth = turnData.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
-
-                        if (previousOpponentHealth != null && currentOpponentHealth != null && 
-                            previousPlayerHealth != null && currentPlayerHealth != null)
-                        {
-                            // Calculate armor and health changes for opponent
-                            var opponentArmorLost = Math.Max(0, previousOpponentHealth.Armor - currentOpponentHealth.Armor);
-                            var opponentHealthLost = Math.Max(0, previousOpponentHealth.Health - currentOpponentHealth.Health);
-                            var damageToOpponent = opponentArmorLost + opponentHealthLost;
-
-                            // Calculate armor and health changes for player
-                            var playerArmorLost = Math.Max(0, previousPlayerHealth.Armor - currentPlayerHealth.Armor);
-                            var playerHealthLost = Math.Max(0, previousPlayerHealth.Health - currentPlayerHealth.Health);
-                            var damageToPlayer = playerArmorLost + playerHealthLost;
-
-                            turnData.CombatResult = new CombatResult
-                            {
-                                OpponentHeroId = _lastCombatOpponent.CardId,
-                                OpponentHeroName = _lastCombatOpponent.Card?.LocalizedName ?? "Unknown",
-                                DamageDealt = damageToOpponent,
-                                DamageTaken = damageToPlayer,
-                                ArmorDamageDealt = opponentArmorLost,
-                                ArmorDamageTaken = playerArmorLost,
-                                HealthDamageDealt = opponentHealthLost,
-                                HealthDamageTaken = playerHealthLost,
-                                Won = damageToOpponent > damageToPlayer
-                            };
-
-                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                                $"Combat Result - Turn {currentTurn}: " +
-                                $"Opponent={turnData.CombatResult.OpponentHeroName}, " +
-                                $"DamageDealt={turnData.CombatResult.DamageDealt} (Armor: {turnData.CombatResult.ArmorDamageDealt}, Health: {turnData.CombatResult.HealthDamageDealt}), " +
-                                $"DamageTaken={turnData.CombatResult.DamageTaken} (Armor: {turnData.CombatResult.ArmorDamageTaken}, Health: {turnData.CombatResult.HealthDamageTaken}), " +
-                                $"Won={turnData.CombatResult.Won}"
-                            );
-                        }
-                    }
-                }
-
-                // Only add if we don't already have data for this turn
-                if (!_turns.Any(t => t.Turn == currentTurn))
-                {
-                    _turns.Add(turnData);
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                        $"Added turn data for turn {currentTurn}: " +
-                        $"Minions={turnData.NumMinionsPlayedThisTurn}, " +
-                        $"Spells={turnData.NumSpellsPlayedThisGame}, " +
-                        $"Resources={turnData.NumResourcesSpentThisGame}, " +
-                        $"Players tracked={turnData.PlayerHealths.Count}"
-                    );
-                }
-                else
-                {
-                    // Update existing turn data
-                    var existingTurn = _turns.First(t => t.Turn == currentTurn);
-                    existingTurn.NumMinionsPlayedThisTurn = turnData.NumMinionsPlayedThisTurn;
-                    existingTurn.NumSpellsPlayedThisGame = turnData.NumSpellsPlayedThisGame;
-                    existingTurn.NumResourcesSpentThisGame = turnData.NumResourcesSpentThisGame;
-                    existingTurn.PlayerHealths = turnData.PlayerHealths;
-                    existingTurn.CombatResult = turnData.CombatResult;
-                }
-
-                _triplesCreated = playerEntity.GetTag(GameTag.PLAYER_TRIPLES);
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Player Entity found, Triples: {_triplesCreated}, Tags: {string.Join(", ", playerEntity.Tags.Select(t => $"{t.Key}={t.Value}"))}");
+            // Only add if we don't already have data for this turn
+            if (!_turns.Any(t => t.Turn == currentTurn))
+            {
+                _turns.Add(turnData);
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                    $"Added turn data for turn {currentTurn}: " +
+                    $"Minions={turnData.NumMinionsPlayedThisTurn}, " +
+                    $"Spells={turnData.NumSpellsPlayedThisGame}, " +
+                    $"Resources={turnData.NumResourcesSpentThisGame}, " +
+                    $"Players tracked={turnData.PlayerHealths.Count}"
+                );
             }
             else
             {
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnTurnStart - Player Entity not found");
+                // Update existing turn data
+                var existingTurn = _turns.First(t => t.Turn == currentTurn);
+                existingTurn.NumMinionsPlayedThisTurn = turnData.NumMinionsPlayedThisTurn;
+                existingTurn.NumSpellsPlayedThisGame = turnData.NumSpellsPlayedThisGame;
+                existingTurn.NumResourcesSpentThisGame = turnData.NumResourcesSpentThisGame;
+                existingTurn.PlayerHealths = turnData.PlayerHealths;
             }
-
-            // Check combat phase
-            var gameEntity = Core.Game.GameEntity;
-            if (gameEntity != null)
-            {
-                var currentStep = gameEntity.GetTag(GameTag.STEP);
-                var nextStep = gameEntity.GetTag(GameTag.NEXT_STEP);
-                var turnNumber = Core.Game.GetTurnNumber();
-                var playState = gameEntity.GetTag(GameTag.PLAYSTATE);
-                var zone = gameEntity.GetTag(GameTag.ZONE);
-
-                var wasInCombat = _isInCombat;
-                
-                // Combat detection logic:
-                // 1. Check if we're in the main combat step (STEP_MAIN_COMBAT = 4)
-                // 2. Validate that we have a real opponent (not Bob)
-                // 3. Check if there are any minions in play
-                var potentialOpponent = Core.Game.Entities.Values
-                    .FirstOrDefault(e => e.IsHero && e.IsInPlay && !e.IsPlayer && e.CardId != "TB_BaconShopBob");
-                
-                var hasMinionsInPlay = Core.Game.Player.Board.Any(e => e.IsMinion && e.IsInPlay) ||
-                                      (potentialOpponent != null && Core.Game.Opponent.Board.Any(e => e.IsMinion && e.IsInPlay));
-
-                _isInCombat = currentStep == 4 && potentialOpponent != null && hasMinionsInPlay;
-
-                // Log detailed phase information
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"=== Phase Information ===");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Current Step: {currentStep}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Next Step: {nextStep}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Turn Number: {turnNumber}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Play State: {playState}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Zone: {zone}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Has Minions In Play: {hasMinionsInPlay}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Has Real Opponent: {potentialOpponent != null}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Is Combat: {_isInCombat}");
-
-                // If we just entered combat, reset damage counter and find opponent
-                if (!wasInCombat && _isInCombat)
-                {
-                    _lastCombatDamageDealt = 0;
-                    _lastCombatOpponent = potentialOpponent;
-                    
-                    if (_lastCombatOpponent != null)
-                    {
-                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Combat started against: {_lastCombatOpponent.Card?.LocalizedName ?? "Unknown"} ({_lastCombatOpponent.CardId})");
-                    }
-                }
-                // If we just exited combat, log the damage dealt
-                else if (wasInCombat && !_isInCombat && _lastCombatOpponent != null)
-                {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Combat ended. Damage dealt this combat: {_lastCombatDamageDealt}");
-                    _totalDamageDealt += _lastCombatDamageDealt;
-                }
-            }
+            _triplesCreated = playerEntity.GetTag(GameTag.PLAYER_TRIPLES);
+            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart - Player Entity found, Triples: {_triplesCreated}, Tags: {string.Join(", ", playerEntity.Tags.Select(t => $"{t.Key}={t.Value}"))}");
         }
 
         private void OnPlayerCreateInPlay(Card card)
@@ -366,15 +312,29 @@ namespace BattlegroundsGameCollection
         {
             if (Core.Game.CurrentGameMode == GameMode.Battlegrounds)
             {
-                _totalDamageDealt = 0;
                 _triplesCreated = 0;
                 _currentHeroId = null;
                 _currentHeroName = null;
-                _lastCombatOpponent = null;
-                _lastCombatDamageDealt = 0;
                 gameStartTime = DateTime.Now;
                 
-                // Try to get hero immediately
+                // Get starting MMR from BattlegroundsRatingInfo
+                var ratingInfo = Core.Game.BattlegroundsRatingInfo;
+                if (ratingInfo != null)
+                {
+                    _startingMmr = ratingInfo.Rating;
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnGameStart - Set starting MMR to: {_startingMmr} from BattlegroundsRatingInfo");
+                }
+                else
+                {
+                    // Fallback to CurrentGameStats if BattlegroundsRatingInfo is not available
+                    var stats = Core.Game.CurrentGameStats;
+                    if (stats != null && stats.GameMode == GameMode.Battlegrounds)
+                    {
+                        _startingMmr = stats.BattlegroundsRating;
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnGameStart - Set starting MMR to: {_startingMmr} from CurrentGameStats");
+                    }
+                }
+                
                 var hero = Core.Game.Player.Hero;
                 if (hero != null)
                 {
@@ -382,59 +342,6 @@ namespace BattlegroundsGameCollection
                     _currentHeroName = hero.Card?.Name;
                     Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnGameStart - Found hero: {_currentHeroName} ({_currentHeroId})");
                 }
-                
-                ShowGameStartOverlay();
-            }
-        }
-
-        private void InitViewPanel()
-        {
-            stackPanel = new PlugInDisplayControl();
-            Core.OverlayCanvas.Children.Add(stackPanel);
-
-            // Initialize overlays
-            gameStartOverlay = new TextBlock
-            {
-                Visibility = System.Windows.Visibility.Collapsed,
-                Foreground = Brushes.White,
-                FontSize = 14,
-                Margin = new Thickness(10)
-            };
-
-            gameEndOverlay = new TextBlock
-            {
-                Visibility = System.Windows.Visibility.Collapsed,
-                Foreground = Brushes.White,
-                FontSize = 14,
-                Margin = new Thickness(10)
-            };
-
-            // Add overlays directly to the stackPanel (since it is a StackPanel)
-            stackPanel.Children.Add(gameStartOverlay);
-            stackPanel.Children.Add(gameEndOverlay);
-
-            // Initialize input manager
-            inputMoveManager = new InputMoveManager(stackPanel);
-        }
-
-        private void ShowGameStartOverlay()
-        {
-            if (gameEndOverlay != null)
-                gameEndOverlay.Visibility = System.Windows.Visibility.Collapsed;
-
-            if (gameStartOverlay != null)
-            {
-                var heroEntity = Core.Game.Player.Hero;
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"ShowGameStartOverlay - Hero from Core.Game: {heroEntity?.Card?.LocalizedName ?? "null"} ({heroEntity?.CardId ?? "null"})");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"ShowGameStartOverlay - Tracked Hero: {_currentHeroName ?? "null"} ({_currentHeroId ?? "null"})");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"ShowGameStartOverlay - Tracked Anomaly: {_currentAnomalyName ?? "null"} ({_currentAnomalyId ?? "null"})");
-
-                var heroName = _currentHeroName ?? heroEntity?.Card?.LocalizedName ?? "Unknown Hero";
-                var health = heroEntity?.Health ?? 0;
-                var anomalyText = _currentAnomalyName != null ? $"\nAnomaly: {_currentAnomalyName}" : "";
-
-                gameStartOverlay.Text = $"Hero: {heroName}\nHealth: {health}{anomalyText}";
-                gameStartOverlay.Visibility = System.Windows.Visibility.Visible;
             }
         }
 
@@ -442,14 +349,7 @@ namespace BattlegroundsGameCollection
         {
             if (!Core.Game.IsBattlegroundsMatch || !_isInCombat)
                 return;
-
-            // Only track damage to the opponent's hero during combat
-            if (_lastCombatOpponent != null && 
-                predamageInfo.Entity.Id == _lastCombatOpponent.Id)
-            {
-                _lastCombatDamageDealt += predamageInfo.Value;
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Damage dealt to opponent: {predamageInfo.Value} (Total this combat: {_lastCombatDamageDealt})");
-            }
+            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Damage dealt to opponent: {predamageInfo.Value}, Opponent: {predamageInfo.Entity.Name}");
         }
 
         private void ParseHDTLog()
@@ -482,6 +382,10 @@ namespace BattlegroundsGameCollection
                         }
 
                         var currentTurn = 0;
+                        var currentOpponentId = "";
+                        var currentOpponentName = "";
+                        var currentSimulationId = "";
+                        var lastSimulationResults = new Dictionary<string, (double WinRate, double TheirDeathRate, double TieRate, double LossRate, double MyDeathRate)>();
 
                         foreach (var line in logLines)
                         {
@@ -498,16 +402,64 @@ namespace BattlegroundsGameCollection
                                 var opponentMatch = OpponentSnapshotRegex.Match(line);
                                 if (opponentMatch.Success)
                                 {
-                                    _currentOpponentName = opponentMatch.Groups[1].Value;
-                                    _currentOpponentId = opponentMatch.Groups[2].Value;
-                                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found opponent: {_currentOpponentName} (ID: {_currentOpponentId})");
+                                    currentOpponentName = opponentMatch.Groups[1].Value;
+                                    currentOpponentId = opponentMatch.Groups[2].Value;
+                                    
+                                    // Store opponent ID in turn data
+                                    var turnData = _turns.FirstOrDefault(t => t.Turn == currentTurn);
+                                    if (turnData != null)
+                                    {
+                                        turnData.OpponentId = currentOpponentId;
+                                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found opponent for turn {currentTurn}: {currentOpponentName} (ID: {currentOpponentId})");
+                                    }
+                                }
+                            }
+                            else if (line.Contains("BobsBuddyInvoker.StartCombat"))
+                            {
+                                var simulationIdMatch = Regex.Match(line, @"BobsBuddyInvoker.StartCombat >> ([\w-]+)");
+                                if (simulationIdMatch.Success)
+                                {
+                                    currentSimulationId = simulationIdMatch.Groups[1].Value;
+                                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Starting combat simulation {currentSimulationId} on turn {currentTurn}");
+                                }
+                            }
+                            else if (line.Contains("BobsBuddyInvoker.ValidateSimulationResultAsync"))
+                            {
+                                var validationMatch = CombatValidationRegex.Match(line);
+                                if (validationMatch.Success)
+                                {
+                                    var result = validationMatch.Groups[1].Value;
+                                    var lethalResult = validationMatch.Groups[2].Value;
+
+                                    // Get or create turn data
+                                    var turnData = _turns.FirstOrDefault(t => t.Turn == currentTurn);
+                                    if (turnData == null)
+                                    {
+                                        turnData = new TurnData { Turn = currentTurn };
+                                        _turns.Add(turnData);
+                                    }
+
+                                    turnData.ActualCombatResult = result;
+                                    turnData.ActualLethalResult = lethalResult;
+
+                                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                        $"Turn {currentTurn} combat result: {result}, Lethal: {lethalResult}"
+                                    );
                                 }
                             }
                             else if (line.Contains("WinRate=") && line.Contains("TieRate=") && line.Contains("LossRate="))
                             {
                                 var match = SimulationResultRegex.Match(line);
-                                if (match.Success)
+                                if (match.Success && !string.IsNullOrEmpty(currentSimulationId))
                                 {
+                                    var winRate = double.Parse(match.Groups[1].Value);
+                                    var theirDeathRate = double.Parse(match.Groups[2].Value);
+                                    var tieRate = double.Parse(match.Groups[3].Value);
+                                    var lossRate = double.Parse(match.Groups[4].Value);
+                                    var myDeathRate = double.Parse(match.Groups[5].Value);
+
+                                    lastSimulationResults[currentSimulationId] = (winRate, theirDeathRate, tieRate, lossRate, myDeathRate);
+
                                     // Get or create turn data
                                     var turnData = _turns.FirstOrDefault(t => t.Turn == currentTurn);
                                     if (turnData == null)
@@ -517,51 +469,11 @@ namespace BattlegroundsGameCollection
                                     }
 
                                     // Update simulation results
-                                    turnData.WinRate = double.Parse(match.Groups[1].Value);
-                                    turnData.TheirDeathRate = double.Parse(match.Groups[2].Value);
-                                    turnData.TieRate = double.Parse(match.Groups[3].Value);
-                                    turnData.LossRate = double.Parse(match.Groups[4].Value);
-                                    turnData.MyDeathRate = double.Parse(match.Groups[5].Value);
-
-                                    // Create combat result if we have opponent info
-                                    if (!string.IsNullOrEmpty(_currentOpponentName))
-                                    {
-                                        var previousTurn = _turns.LastOrDefault(t => t.Turn < currentTurn);
-                                        if (previousTurn != null)
-                                        {
-                                            var previousOpponentHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.PlayerId == _currentOpponentId);
-                                            var currentOpponentHealth = turnData.PlayerHealths.FirstOrDefault(p => p.PlayerId == _currentOpponentId);
-                                            var previousPlayerHealth = previousTurn.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
-                                            var currentPlayerHealth = turnData.PlayerHealths.FirstOrDefault(p => p.HeroCardId == _currentHeroId);
-
-                                            if (previousOpponentHealth != null && currentOpponentHealth != null && 
-                                                previousPlayerHealth != null && currentPlayerHealth != null)
-                                            {
-                                                // Calculate armor and health changes for opponent
-                                                var opponentArmorLost = Math.Max(0, previousOpponentHealth.Armor - currentOpponentHealth.Armor);
-                                                var opponentHealthLost = Math.Max(0, previousOpponentHealth.Health - currentOpponentHealth.Health);
-                                                var damageToOpponent = opponentArmorLost + opponentHealthLost;
-
-                                                // Calculate armor and health changes for player
-                                                var playerArmorLost = Math.Max(0, previousPlayerHealth.Armor - currentPlayerHealth.Armor);
-                                                var playerHealthLost = Math.Max(0, previousPlayerHealth.Health - currentPlayerHealth.Health);
-                                                var damageToPlayer = playerArmorLost + playerHealthLost;
-
-                                                turnData.CombatResult = new CombatResult
-                                                {
-                                                    OpponentHeroId = _currentOpponentId,
-                                                    OpponentHeroName = _currentOpponentName,
-                                                    DamageDealt = damageToOpponent,
-                                                    DamageTaken = damageToPlayer,
-                                                    ArmorDamageDealt = opponentArmorLost,
-                                                    ArmorDamageTaken = playerArmorLost,
-                                                    HealthDamageDealt = opponentHealthLost,
-                                                    HealthDamageTaken = playerHealthLost,
-                                                    Won = damageToOpponent > damageToPlayer
-                                                };
-                                            }
-                                        }
-                                    }
+                                    turnData.WinRate = winRate;
+                                    turnData.TheirDeathRate = theirDeathRate;
+                                    turnData.TieRate = tieRate;
+                                    turnData.LossRate = lossRate;
+                                    turnData.MyDeathRate = myDeathRate;
 
                                     Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
                                         $"Updated turn {currentTurn} with simulation results: " +
@@ -569,12 +481,6 @@ namespace BattlegroundsGameCollection
                                         $"Tie={turnData.TieRate}%, " +
                                         $"Loss={turnData.LossRate}% (Lethal={turnData.MyDeathRate}%)"
                                     );
-
-                                    // Update UI with latest simulation result
-                                    if (stackPanel != null)
-                                    {
-                                        stackPanel.UpdateSimulationDisplay(turnData);
-                                    }
                                 }
                             }
                         }
@@ -604,225 +510,225 @@ namespace BattlegroundsGameCollection
 
             try
             {
-                ParseHDTLog();
-
-                var stats = Core.Game.CurrentGameStats;
-                if (stats == null)
+                // Wait 3 seconds to ensure MMR has updated
+                Task.Run(async () =>
                 {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: CurrentGameStats is null");
-                    return;
-                }
-
-                var playerEntity = Core.Game.Entities.Values
-                    .FirstOrDefault(x => x.IsPlayer);
-                if (playerEntity == null)
-                {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: Player entity not found");
-                    return;
-                }
-
-                // Debug logging for all relevant data
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== OnGameEnd Debug Information ===");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Game Mode: {Core.Game.CurrentGameMode}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Player Name: {Core.Game.Player.Name}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"MMR - Starting: {_startingMmr}, Current: {stats.BattlegroundsRating}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Hero - Current: {_currentHeroId ?? "null"}, Name: {_currentHeroName ?? "null"}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Hero from Core - Id: {Core.Game.Player.Hero?.CardId ?? "null"}, Name: {Core.Game.Player.Hero?.Card?.LocalizedName ?? "null"}");
-                
-                // Log all entities to help debug placement
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== All Game Entities ===");
-                foreach (var entity in Core.Game.Entities.Values)
-                {
-                    if (entity.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE) || entity.HasTag(GameTag.PLAYER_TRIPLES))
+                    try
                     {
-                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Entity {entity.Id}: Name={entity.Name}, IsPlayer={entity.IsPlayer}, Place={entity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE)}, Triples={entity.GetTag(GameTag.PLAYER_TRIPLES)}");
+                        await Task.Delay(3000);
+                        ParseHDTLog();
+
+                        var stats = Core.Game.CurrentGameStats;
+                        if (stats == null)
+                        {
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: CurrentGameStats is null");
+                            return;
+                        }
+
+                        // Get final MMR from BattlegroundsRatingInfo first
+                        var ratingInfo = Core.Game.BattlegroundsRatingInfo;
+                        int finalMmr = 0;
+                        if (ratingInfo != null)
+                        {
+                            finalMmr = ratingInfo.Rating;
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnGameEnd - Got final MMR from BattlegroundsRatingInfo: {finalMmr}");
+                        }
+                        else if (stats.BattlegroundsRating > 0)
+                        {
+                            finalMmr = stats.BattlegroundsRating;
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnGameEnd - Got final MMR from CurrentGameStats: {finalMmr}");
+                        }
+                        else
+                        {
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd - Could not get final MMR from either source");
+                            return;
+                        }
+
+                        var playerEntity = Core.Game.Entities.Values
+                            .FirstOrDefault(x => x.IsPlayer);
+                        if (playerEntity == null)
+                        {
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("OnGameEnd: Player entity not found");
+                            return;
+                        }
+
+                        // Debug logging for all relevant data
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== OnGameEnd Debug Information ===");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Game Mode: {Core.Game.CurrentGameMode}");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Player Name: {Core.Game.Player.Name}");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"MMR - Starting: {_startingMmr}, Current: {stats.BattlegroundsRating}");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Hero - Current: {_currentHeroId ?? "null"}, Name: {_currentHeroName ?? "null"}");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Hero from Core - Id: {Core.Game.Player.Hero?.CardId ?? "null"}, Name: {Core.Game.Player.Hero?.Card?.LocalizedName ?? "null"}");
+                        
+                        // Log all entities to help debug placement
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== All Game Entities ===");
+                        foreach (var entity in Core.Game.Entities.Values)
+                        {
+                            if (entity.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE) || entity.HasTag(GameTag.PLAYER_TRIPLES))
+                            {
+                                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Entity {entity.Id}: Name={entity.Name}, IsPlayer={entity.IsPlayer}, Place={entity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE)}, Triples={entity.GetTag(GameTag.PLAYER_TRIPLES)}");
+                            }
+                        }
+
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Player Entity Tags:");
+                        foreach (var tag in playerEntity.Tags)
+                        {
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"  {tag.Key} = {tag.Value}");
+                        }
+
+                        // Get placement - first try PLAYER_LEADERBOARD_PLACE, fallback to other methods
+                        int placement = 0;
+                        
+                        // Try to get placement from any entity that has our player ID and a leaderboard place
+                        var playerPlaceEntity = Core.Game.Entities.Values
+                            .FirstOrDefault(e => e.GetTag(GameTag.PLAYER_ID) == playerEntity.GetTag(GameTag.PLAYER_ID) 
+                                            && e.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE));
+                        
+                        if (playerPlaceEntity != null)
+                        {
+                            placement = playerPlaceEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found placement from player entity: {placement}");
+                        }
+                        else if (playerEntity.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE))
+                        {
+                            placement = playerEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found placement from PLAYER_LEADERBOARD_PLACE: {placement}");
+                        }
+                        else
+                        {
+                            // Count how many players are still alive
+                            var alivePlayers = Core.Game.Entities.Values
+                                .Count(e => e.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE) && e.GetTag(GameTag.PLAYSTATE) != (int)PlayState.CONCEDED);
+                            placement = alivePlayers + 1;
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Calculated placement from alive players: {placement}");
+                        }
+
+                        // Get triples count - check all entities controlled by the player
+                        var triplesCreated = Core.Game.Entities.Values
+                            .Where(e => e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
+                            .Max(e => e.GetTag(GameTag.PLAYER_TRIPLES));
+
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found triples count: {triplesCreated}");
+
+                        // Get final board state
+                        var finalBoard = new List<BoardMinion>();
+                        var playerBoardEntities = Core.Game.Entities.Values
+                            .Where(e => e.IsInPlay && e.IsMinion && e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
+                            .OrderBy(e => e.GetTag(GameTag.ZONE_POSITION));
+
+                        foreach (var entity in playerBoardEntities)
+                        {
+                            var minion = new BoardMinion
+                            {
+                                CardId = entity.CardId,
+                                Name = entity.Card?.LocalizedName ?? "Unknown",
+                                Attack = entity.GetTag(GameTag.ATK),
+                                Health = entity.GetTag(GameTag.HEALTH),
+                                IsTaunt = entity.HasTag(GameTag.TAUNT),
+                                IsDivineShield = entity.HasTag(GameTag.DIVINE_SHIELD),
+                                IsReborn = entity.HasTag(GameTag.REBORN),
+                            };
+
+                            // Get enchantments
+                            var enchantments = entity.GetTag(GameTag.ENCHANTMENT_BIRTH_VISUAL);
+                            if (enchantments > 0)
+                            {
+                                minion.Enchantments = Core.Game.Entities.Values
+                                    .Where(e => e.GetTag(GameTag.ATTACHED) == entity.Id && e.GetTag(GameTag.ENCHANTMENT_BIRTH_VISUAL) == enchantments)
+                                    .Select(e => e.CardId)
+                                    .ToList();
+                            }
+
+                            finalBoard.Add(minion);
+                        }
+
+                        // Log board state
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== Final Board State ===");
+                        foreach (var minion in finalBoard)
+                        {
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                                $"Minion: {minion.Name} ({minion.CardId}) - {minion.Attack}/{minion.Health}" +
+                                $"{(minion.IsTaunt ? " [Taunt]" : "")}" +
+                                $"{(minion.IsDivineShield ? " [Divine Shield]" : "")}" +
+                                $"{(minion.IsReborn ? " [Reborn]" : "")}" +
+                                $"{(minion.IsPoisonous ? " [Poisonous]" : "")}" +
+                                $"{(minion.isVenomous ? " [Venomous]" : "")}" +
+                                $"{(minion.Enchantments.Any() ? $" [Enchantments: {string.Join(", ", minion.Enchantments)}]" : "")}"
+                            );
+                        }
+
+                        var gameData = new BattlegroundsGameData
+                        {
+                            PlayerIdentifier = Core.Game.Player.Name,
+                            Placement = placement,
+                            StartingMmr = _startingMmr,
+                            FinalMmr = finalMmr,
+                            MmrGained = finalMmr - _startingMmr,
+                            GameDurationInSeconds = (int)(DateTime.Now - gameStartTime).TotalSeconds,
+                            GameEndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ff"),
+                            HeroPlayed = BattlegroundsUtils.GetOriginalHeroId(_currentHeroId) ?? "Unknown",
+                            HeroPlayedName = _currentHeroName ?? "Unknown",
+                            AnomalyId = _currentAnomalyId ?? "None",
+                            AnomalyName = _currentAnomalyName ?? "None",
+                            TriplesCreated = triplesCreated,
+                            FinalBoard = finalBoard,
+                            Turns = _turns,
+                            Region = GetRegionStr(),
+                        };
+
+                        // Log the final game data
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== Final Game Data ===");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(JsonConvert.SerializeObject(gameData, Formatting.Indented));
+
+                        // Save game data to file
+                        var bgGamesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BGGames");
+                        
+                        // Ensure directory exists
+                        if (!Directory.Exists(bgGamesDir))
+                        {
+                            Directory.CreateDirectory(bgGamesDir);
+                        }
+
+                        var fileName = $"BGGame_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                        var fullPath = Path.Combine(bgGamesDir, fileName);
+                        
+                        // Save the file first
+                        File.WriteAllText(fullPath, JsonConvert.SerializeObject(gameData, Formatting.Indented));
+
+                        // Log successful write
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"BG game data saved to: {fullPath}");
+
+                        // Clear simulation results for next game
+                        _turns.Clear();
                     }
-                }
-
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Player Entity Tags:");
-                foreach (var tag in playerEntity.Tags)
-                {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"  {tag.Key} = {tag.Value}");
-                }
-
-                // Get placement - first try PLAYER_LEADERBOARD_PLACE, fallback to other methods
-                int placement = 0;
-                
-                // Try to get placement from any entity that has our player ID and a leaderboard place
-                var playerPlaceEntity = Core.Game.Entities.Values
-                    .FirstOrDefault(e => e.GetTag(GameTag.PLAYER_ID) == playerEntity.GetTag(GameTag.PLAYER_ID) 
-                                    && e.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE));
-                
-                if (playerPlaceEntity != null)
-                {
-                    placement = playerPlaceEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found placement from player entity: {placement}");
-                }
-                else if (playerEntity.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE))
-                {
-                    placement = playerEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found placement from PLAYER_LEADERBOARD_PLACE: {placement}");
-                }
-                else
-                {
-                    // Count how many players are still alive
-                    var alivePlayers = Core.Game.Entities.Values
-                        .Count(e => e.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE) && e.GetTag(GameTag.PLAYSTATE) != (int)PlayState.CONCEDED);
-                    placement = alivePlayers + 1;
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Calculated placement from alive players: {placement}");
-                }
-
-                // Get triples count - check all entities controlled by the player
-                var triplesCreated = Core.Game.Entities.Values
-                    .Where(e => e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
-                    .Max(e => e.GetTag(GameTag.PLAYER_TRIPLES));
-
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found triples count: {triplesCreated}");
-
-                // Get final board state
-                var finalBoard = new List<BoardMinion>();
-                var playerBoardEntities = Core.Game.Entities.Values
-                    .Where(e => e.IsInPlay && e.IsMinion && e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
-                    .OrderBy(e => e.GetTag(GameTag.ZONE_POSITION));
-
-                foreach (var entity in playerBoardEntities)
-                {
-                    var minion = new BoardMinion
+                    catch (Exception ex)
                     {
-                        CardId = entity.CardId,
-                        Name = entity.Card?.LocalizedName ?? "Unknown",
-                        Attack = entity.GetTag(GameTag.ATK),
-                        Health = entity.GetTag(GameTag.HEALTH),
-                        IsTaunt = entity.HasTag(GameTag.TAUNT),
-                        IsDivineShield = entity.HasTag(GameTag.DIVINE_SHIELD),
-                        IsReborn = entity.HasTag(GameTag.REBORN),
-                    };
-
-                    // Get enchantments
-                    var enchantments = entity.GetTag(GameTag.ENCHANTMENT_BIRTH_VISUAL);
-                    if (enchantments > 0)
-                    {
-                        minion.Enchantments = Core.Game.Entities.Values
-                            .Where(e => e.GetTag(GameTag.ATTACHED) == entity.Id && e.GetTag(GameTag.ENCHANTMENT_BIRTH_VISUAL) == enchantments)
-                            .Select(e => e.CardId)
-                            .ToList();
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Failed to save BG game data: {ex.Message}");
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Stack trace: {ex.StackTrace}");
                     }
-
-                    finalBoard.Add(minion);
-                }
-
-                // Log board state
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== Final Board State ===");
-                foreach (var minion in finalBoard)
-                {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                        $"Minion: {minion.Name} ({minion.CardId}) - {minion.Attack}/{minion.Health}" +
-                        $"{(minion.IsTaunt ? " [Taunt]" : "")}" +
-                        $"{(minion.IsDivineShield ? " [Divine Shield]" : "")}" +
-                        $"{(minion.IsReborn ? " [Reborn]" : "")}" +
-                        $"{(minion.IsPoisonous ? " [Poisonous]" : "")}" +
-                        $"{(minion.Enchantments.Any() ? $" [Enchantments: {string.Join(", ", minion.Enchantments)}]" : "")}"
-                    );
-                }
-
-                var gameData = new BattlegroundsGameData
-                {
-                    PlayerIdentifier = Core.Game.Player.Name,
-                    Placement = placement,
-                    StartingMmr = _startingMmr,
-                    FinalMmr = stats.BattlegroundsRating,
-                    MmrGained = stats.BattlegroundsRating - _startingMmr,
-                    GameDurationInSeconds = (int)(DateTime.Now - gameStartTime).TotalSeconds,
-                    GameEndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ff"),
-                    HeroPlayed = _currentHeroId ?? "Unknown",
-                    HeroPlayedName = _currentHeroName ?? "Unknown",
-                    AnomalyId = _currentAnomalyId ?? "None",
-                    AnomalyName = _currentAnomalyName ?? "None",
-                    TriplesCreated = triplesCreated,
-                    FinalBoard = finalBoard,
-                    TotalDamageDealt = _totalDamageDealt,
-                    Turns = _turns
-                };
-
-                // Log the final game data
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== Final Game Data ===");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(JsonConvert.SerializeObject(gameData, Formatting.Indented));
-
-                // Save game data to file
-                var bgGamesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BGGames");
-                
-                // Ensure directory exists
-                if (!Directory.Exists(bgGamesDir))
-                {
-                    Directory.CreateDirectory(bgGamesDir);
-                }
-
-                var fileName = $"BGGame_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-                var fullPath = Path.Combine(bgGamesDir, fileName);
-                
-                // Save the file first
-                File.WriteAllText(fullPath, JsonConvert.SerializeObject(gameData, Formatting.Indented));
-
-                // Log successful write
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"BG game data saved to: {fullPath}");
-
-                // Update overlay if available
-                if (gameStartOverlay != null)
-                    gameStartOverlay.Visibility = System.Windows.Visibility.Collapsed;
-                
-                if (gameEndOverlay != null)
-                {
-                    gameEndOverlay.Text = $"Game Summary:\nPlacement: {gameData.Placement}\nMMR Change: {gameData.MmrGained}\nTriples: {gameData.TriplesCreated}";
-                    gameEndOverlay.Visibility = System.Windows.Visibility.Visible;
-                }
-
-                // Clear simulation results for next game
-                _turns.Clear();
+                });
             }
             catch (Exception ex)
             {
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Failed to save BG game data: {ex.Message}");
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Stack trace: {ex.StackTrace}");
-            }
-        }
-
-        private void SettingsChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            stackPanel.RenderTransform = new ScaleTransform(Settings.Default.Scale / 100, Settings.Default.Scale / 100);
-            stackPanel.Opacity = Settings.Default.Opacity / 100;
-        }
-
-        public void CleanUp()
-        {
-            if (stackPanel != null)
-            {
-                Core.OverlayCanvas.Children.Remove(stackPanel);
-                Dispose();
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in OnGameEnd: {ex}");
             }
         }
 
         public void Dispose()
         {
-            inputMoveManager.Dispose();
+            // HDT's ActionList doesn't support Remove, so we'll just let the events be cleaned up when the plugin is unloaded
         }
 
-        // Add method to update attacking entities
-        public void UpdateAttackingEntities(Entity attacker, Entity defender)
+        private string GetRegionStr()
         {
-            if (!attacker.IsHero || !defender.IsHero)
-                return;
-            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Updating entities with attacker={attacker.Card.Name}, defender={defender.Card.Name}");
-            _defendingHero = defender;
-            _attackingHero = attacker;
-        }
-
-        // Add method to handle new attacking entity
-        public void HandleNewAttackingEntity(Entity newAttacker)
-        {
-            if (newAttacker.IsHero)
+            switch (Core.Game.CurrentRegion)
             {
-                _lastAttackingHero = newAttacker;
-                _lastAttackingHeroAttack = newAttacker.Attack;
+                case Region.US:
+                    return "US";
+                case Region.EU:
+                    return "EU";
+                default:
+                    return "AP";
             }
         }
     }

@@ -1,5 +1,4 @@
 Ongoing issues:
 
-- Can't find the updated mmr after game End
-- Can't figure out damage dealt per turn
-- Need to implement reading logs to figure out the Bob's Buddy Output
+- Each turns gives the entity health and damage and armor and player also has nextPlayerOpponentId
+- MMR is properly retrieved at the start of game

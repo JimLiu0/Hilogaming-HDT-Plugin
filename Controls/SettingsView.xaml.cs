@@ -61,21 +61,6 @@ namespace BattlegroundsGameCollection.Controls
             }
         }
 
-        private void BtnUnlock_Click(object sender, RoutedEventArgs e)
-        {
-            if (stackPanel != null)
-            {
-                bool IsUnlocked = BattlegroundsGameCollection.inputMoveManager.Toggle();
-                BtnShowHide.IsEnabled = !IsUnlocked;
-                BtnUnlock.Content = IsUnlocked ? LocalizeTools.GetLocalized("LabelLock") : BtnUnlock.Content = LocalizeTools.GetLocalized("LabelUnlock");
-
-                if (IsUnlocked && (stackPanel.Visibility != Visibility.Visible))
-                {
-                    stackPanel.Visibility = Visibility.Visible;
-                    BtnShowHide.Content = LocalizeTools.GetLocalized("LabelHide");
-                }
-            }
-        }
         /// <summary>
         /// Gets the reference to our display StackPanel.
         /// </summary>

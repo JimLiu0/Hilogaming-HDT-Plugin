@@ -1,9 +1,8 @@
 ﻿using Hearthstone_Deck_Tracker.Plugins;
-using BattlegroundsGameCollection.Controls;
-using BattlegroundsGameCollection.Properties;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace BattlegroundsGameCollection
@@ -24,13 +23,14 @@ namespace BattlegroundsGameCollection
         /// </summary>
         /// <value>The author's name.</value>
         public string Author => "LiiHS";
-// ToDo: put your name as the author
 
+        public string ButtonText => "BG Game Collection";
 
-        public string ButtonText => LocalizeTools.GetLocalized("LabelSettings");
-
-       // ToDo: Update the Plug-in Description in StringsResource.resx        
-       public string Description => LocalizeTools.GetLocalized("TextDescription");
+        /// <summary>
+        /// The Plug-in's description.
+        /// </summary>
+        /// <value>The Plug-in's description.</value>
+        public string Description => "Collects Battlegrounds game data and logs it for analysis";
 
         /// <summary>
         /// Gets or sets the main <see cref="MenuItem">Menu Item</see>.
@@ -38,7 +38,7 @@ namespace BattlegroundsGameCollection
         /// <value>The main <see cref="MenuItem">Menu Item</see>.</value>
         public MenuItem MenuItem { get; set; } = null;
 
-        public string Name => LocalizeTools.GetLocalized("TextName");
+        public string Name => "BG Game Collection";
 
         /// <summary>
         /// The gets plug-in version.from the assembly
@@ -46,23 +46,7 @@ namespace BattlegroundsGameCollection
         /// <value>The plug-in assembly version.</value>
         public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        /// <summary>
-        /// Adds the menu item.
-        /// </summary>
-        private void AddMenuItem()
-        {
-            this.MenuItem = new MenuItem()
-            {
-                Header = Name
-            };
-
-            this.MenuItem.Click += (sender, args) =>
-            {
-                OnButtonPress();
-            };
-        }
-
-        public void OnButtonPress() => SettingsView.Flyout.IsOpen = true;
+        public void OnButtonPress() { }
 
         public void OnLoad()
         {
@@ -74,7 +58,7 @@ namespace BattlegroundsGameCollection
             }
 
             pluginInstance = new BattlegroundsGameCollection();
-            AddMenuItem();
+            MenuItem = new MenuItem { Header = Name };
         }
 
         /// <summary>
@@ -82,16 +66,16 @@ namespace BattlegroundsGameCollection
         /// </summary>
         public void OnUnload()
         {
-            Settings.Default.Save();
-
-            pluginInstance?.CleanUp();
-            pluginInstance = null;
+            if (pluginInstance != null)
+            {
+                pluginInstance.Dispose();
+                pluginInstance = null;
+            }
         }
 
         /// <summary>
         /// Called when [update].
         /// </summary>
-        public void OnUpdate()
-        { }
+        public void OnUpdate() { }
     }
 }
