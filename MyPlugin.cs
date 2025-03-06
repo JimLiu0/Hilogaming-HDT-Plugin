@@ -194,6 +194,32 @@ namespace BattlegroundsGameCollection
             }
         }
 
+        private void Log()
+        {
+            var jsonContent = JsonConvert.SerializeObject(game, Formatting.Indented);
+
+            // Create BGGames directory if it doesn't exist
+            var bgGamesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BGGames");
+            if (!Directory.Exists(bgGamesDir))
+            {
+                Directory.CreateDirectory(bgGamesDir);
+            }
+
+            // Create HSReplay subdirectory
+            var hsReplayDir = Path.Combine(bgGamesDir, "HSReplay");
+            if (!Directory.Exists(hsReplayDir))
+            {
+                Directory.CreateDirectory(hsReplayDir);
+            }
+
+            // Generate filename based on current date/time
+            var filename = $"game_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json";
+            var fullPath = Path.Combine(hsReplayDir, filename);
+
+            // Save the JSON file
+            File.WriteAllText(fullPath, jsonContent);
+        }
+
         private async void OnGameEnd()
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
@@ -208,6 +234,24 @@ namespace BattlegroundsGameCollection
             game.gameDurationInSeconds = (int)(DateTime.Now - gameStartTime).TotalSeconds;
             game.heroPlayed = Core.Game.Player.Hero.CardId;
             game.heroPlayedName = Core.Game.Player.Hero.Card?.LocalizedName;
+
+            var playerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
+            var playerBoardEntities = Core.Game.Entities.Values
+                .Where(e => e.IsInPlay && e.IsMinion && e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
+                .OrderBy(e => e.GetTag(GameTag.ZONE_POSITION));
+
+            game.finalComp = new FinalComp();
+            game.finalComp.turn = Core.Game.GetTurnNumber();
+            game.finalComp.board = playerBoardEntities.Select(x => new BoardMinion
+            {
+                cardID = x.CardId,
+                name = x.Card?.LocalizedName ?? "Unknown",
+                tags = new Tag
+                {
+                    ATK = x.GetTag(GameTag.ATK),
+                    HEALTH = x.GetTag(GameTag.HEALTH)
+                }
+            }).ToArray();
 
             // Do final board stuff phase 2
             await CalculateAndUpdateMmr();
@@ -226,6 +270,8 @@ namespace BattlegroundsGameCollection
 
             game.startingMmr = ratingBefore;
             game.mmrGained = mmrChange;
+
+            Log();
         }
 
         private void ProcessFight()
