@@ -1,26 +1,14 @@
-﻿using Hearthstone_Deck_Tracker.API;
+using Hearthstone_Deck_Tracker.API;
 using System;
-using Core = Hearthstone_Deck_Tracker.API.Core;
-using Hearthstone_Deck_Tracker.Enums;
-using Hearthstone_Deck_Tracker.Hearthstone.Entities;
-using BattlegroundsGameCollection.Logic;
-using Newtonsoft.Json;
-using System.IO;
-using System.Text.RegularExpressions;
-using Hearthstone_Deck_Tracker.Hearthstone;
-using HearthDb.Enums;
 using System.Linq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Net.Http;
-using Hearthstone_Deck_Tracker.Utility.Battlegrounds;
 
 namespace BattlegroundsGameCollection
 {
     public class GameData
     {
         public string playerIdentifier { get; set; }
-        public int placement { get; set; }
+        public string placement { get; set; }
         public int startingMmr { get; set; }
         public int mmrGained { get; set; }
         public int gameDurationInSeconds { get; set; }
@@ -37,7 +25,7 @@ namespace BattlegroundsGameCollection
     public class TurnData
     {
         public int turn { get; set; }
-        public int opponentId { get; set; }
+        public string opponentId { get; set; }
         public int heroDamage { get; set; } // Positive if we dealt damage, negative if we took damage, 0 for tie
         public double winOdds { get; set; }
         public double tieOdds { get; set; }
@@ -62,19 +50,19 @@ namespace BattlegroundsGameCollection
     {
         public string cardID { get; set; }
         public string name { get; set; }
-        public Tag tags { get; set; }
+        public Tag[] tags { get; set; }
     }
 
     public class Tag
     {
-        public int ATK { get; set; }
-        public int HEALTH { get; set; }
+        public string ATK { get; set; }
+        public string HEALTH { get; set; }
     }
 
     // Needed to calculate damage
     public class HealthData
     {
-        public int playerId { get; set; }
+        public string playerId { get; set; }
         public int health { get; set; }
         public int armor { get; set; }
         public int damage { get; set; }
@@ -85,14 +73,15 @@ namespace BattlegroundsGameCollection
     {
         private GameData game = new GameData();
         private DateTime gameStartTime;
-        private HealthData[] startOfShopPhaseHealths = new HealthData[8];
-        private HealthData[] startOfCombatPhaseHealths = new HealthData[8];
+        private HealthData[] startOfShopPhaseHealths = new HealthData[];
+        private HealthData[] startOfCombatPhaseHealths = new HealthData[];
 
         public BattlegroundsGameCollection()
         {
-            GameEvents.OnGameStart.Add(OnGameStart);
+            GameEvents.OnGameStart.Add(() => OnGameStart().GetAwaiter().GetResult());
             GameEvents.OnGameEnd.Add(OnGameEnd);
             GameEvents.OnTurnStart.Add(OnTurnStart);
+            GameEvents.OnPlayerCreateInPlay.Add(OnPlayerCreateInPlay);
         }
 
         public void Dispose()
@@ -100,38 +89,27 @@ namespace BattlegroundsGameCollection
             game = null;
         }
 
-        private void OnGameStart()
+        private void onGameStart()
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds) return;
 
             gameStartTime = DateTime.Now;
-            game = new GameData
-            {
-                turns = new TurnData[0],
-                finalComp = new FinalComp
-                {
-                    board = new BoardMinion[0],
-                    turn = 0
-                }
-            };
-            startOfShopPhaseHealths = new HealthData[8];
-            startOfCombatPhaseHealths = new HealthData[8];
+            game = new GameData();
+            startOfShopPhaseHealths = new HealthData[];
+            startOfCombatPhaseHealths = new HealthData[];
             switch (Core.Game.CurrentRegion)
             {
                 case Region.US:
                     game.server = "REGION_US";
-                    break;
                 case Region.EU:
                     game.server = "REGION_EU";
-                    break;
                 default:
                     game.server = "REGION_AP";
-                    break;
             }
             // Figure out playerIdentifier
         }
 
-        private void OnTurnStart(ActivePlayer player)
+        private void onTurnStart(ActivePlayer player)
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
@@ -153,27 +131,9 @@ namespace BattlegroundsGameCollection
             {
                 ProcessFight();
 
-                // Initialize turns array if null
-                if (game.turns == null)
-                {
-                    game.turns = new TurnData[0];
-                }
-
-                // Create new turn and add it to the array
-                var turnData = new TurnData
-                {
-                    turn = currentTurn,
-                    numMinionsPlayedThisTurn = 0,
-                    numSpellsPlayedThisGame = 0,
-                    numResourcesSpentThisGame = 0,
-                    tavernTier = 1
-                };
-
-                // Add the new turn to the array
-                var newTurns = new TurnData[game.turns.Length + 1];
-                Array.Copy(game.turns, newTurns, game.turns.Length);
-                newTurns[game.turns.Length] = turnData;
-                game.turns = newTurns;
+                // Create new turn but don't have to fill it in
+                var turnData = new TurnData();
+                turnData.turn = currentTurn;
             }
 
             // Combat phase
@@ -181,20 +141,20 @@ namespace BattlegroundsGameCollection
             {
                 startOfCombatPhaseHealths = currentHealths;
 
-                if (game.turns != null && game.turns.Length > 0)
+                if (game.turns is not null && game.turns.Length > 0)
                 {
-                    var lastTurn = game.turns.Last();
+                    var lastTurn = game.turns.last();
 
-                    game.triplesCreated = mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES);
-                    lastTurn.numMinionsPlayedThisTurn = mainPlayerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN);
-                    lastTurn.numSpellsPlayedThisGame = mainPlayerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME);
-                    lastTurn.numResourcesSpentThisGame = mainPlayerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME);
-                    lastTurn.tavernTier = mainPlayerEntity.GetTag(GameTag.PLAYER_TECH_LEVEL);
+                    game.triplesCreated = mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES) ?? 0;
+                    lastTurn.numMinionsPlayedThisTurn = mainPlayerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN) ?? 0;
+                    lastTurn.numSpellsPlayedThisGame = mainPlayerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME) ?? 0;
+                    lastTurn.numResourcesSpentThisGame = mainPlayerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME) ?? 0;
+                    lastTurn.tavernTier = mainPlayerEntity.GetTag(GameTag.PLAYER_TECH_LEVEL) ?? 0;
                 }
             }
         }
 
-        private async void OnGameEnd()
+        private void OnGameEnd()
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
@@ -204,13 +164,13 @@ namespace BattlegroundsGameCollection
       
             // Do placement stuff and meta data stuff
             game.placement = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer).GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+            CalculateAndUpdateMmr();
             game.gameEndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ff");
             game.gameDurationInSeconds = (int)(DateTime.Now - gameStartTime).TotalSeconds;
             game.heroPlayed = Core.Game.Player.Hero.CardId;
             game.heroPlayedName = Core.Game.Player.Hero.Card?.LocalizedName;
 
             // Do final board stuff phase 2
-            await CalculateAndUpdateMmr();
         }
 
         private async Task CalculateAndUpdateMmr()
@@ -230,8 +190,7 @@ namespace BattlegroundsGameCollection
 
         private void ProcessFight()
         {
-            // Only process if we have turns
-            if (game.turns == null || game.turns.Length == 0)
+            if (game.turns is not null && game.turns.Length > 0)
             {
                 return;
             }
@@ -248,7 +207,7 @@ namespace BattlegroundsGameCollection
 
             startOfShopPhaseHealths = currentHealths;
 
-            var lastTurn = game.turns.Last();
+            var lastTurn = game.turns.last();
             // Figure out how much damage was done during the last combat phase
 
             // Get the opponent id from last turn
