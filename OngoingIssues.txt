@@ -1,4 +1,4 @@
 Ongoing issues:
 
-- Each turns gives the entity health and damage and armor and player also has nextPlayerOpponentId
-- MMR is properly retrieved at the start of game
+- last turn heroDamage if dying, last turn lethalresult if dying: both are wrong
+- last turn is not calculating heroDamage at all. Needs to be done onGameEnd

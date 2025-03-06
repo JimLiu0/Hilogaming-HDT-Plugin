@@ -1,620 +1,137 @@
 {
-  "PlayerIdentifier": "Lii#11987",
-  "Placement": 8,
-  "StartingMmr": 0,
-  "FinalMmr": 301,
-  "MmrGained": 301,
-  "GameDurationInSeconds": 657,
-  "GameEndDate": "2025-02-28 12:26:31.22",
-  "HeroPlayed": "BG25_HERO_103",
-  "HeroPlayedName": "Teron Gorefiend",
-  "AnomalyId": "BG27_Anomaly_751",
-  "AnomalyName": "Perfected Alchemy",
-  "TriplesCreated": 0,
-  "FinalBoard": [],
-  "TotalDamageDealt": 0,
-  "Turns": [
+  "playerIdentifier": "Lii#11987",
+  "placement": 8,
+  "startingMmr": 14444,
+  "mmrGained": -100,
+  "gameDurationInSeconds": 732,
+  "gameEndDate": "2025-03-06 00:04:44.46",
+  "heroPlayed": "TB_BaconShop_HERO_15",
+  "heroPlayedName": "George the Fallen",
+  "triplesCreated": 0,
+  "battleLuck": 0.0,
+  "server": "REGION_AP",
+  "turns": [
     {
-      "Turn": 1,
-      "WinRate": 0.0,
-      "TieRate": 100.0,
-      "LossRate": 0.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 0.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 15,
-          "TotalHealth": 45
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 17,
-          "TotalHealth": 47
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 19,
-          "TotalHealth": 49
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 18,
-          "TotalHealth": 48
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 1,
+      "heroDamage": 0,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": null,
+      "actualLethalResult": null,
+      "numMinionsPlayedThisTurn": 0,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 0,
+      "tavernTier": 1
     },
     {
-      "Turn": 2,
-      "WinRate": 0.0,
-      "TieRate": 0.0,
-      "LossRate": 100.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 0.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 13,
-          "TotalHealth": 43
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 15,
-          "TotalHealth": 45
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 19,
-          "TotalHealth": 49
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 18,
-          "TotalHealth": 48
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 2,
+      "heroDamage": 0,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": "Loss",
+      "actualLethalResult": "NoOneDied",
+      "numMinionsPlayedThisTurn": 0,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 0,
+      "tavernTier": 1
     },
     {
-      "Turn": 3,
-      "WinRate": 0.0,
-      "TieRate": 0.0,
-      "LossRate": 100.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 0.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 15,
-          "TotalHealth": 45
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 16,
-          "TotalHealth": 46
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 18,
-          "TotalHealth": 48
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 3,
+      "heroDamage": 0,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": "Loss",
+      "actualLethalResult": "NoOneDied",
+      "numMinionsPlayedThisTurn": 0,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 0,
+      "tavernTier": 1
     },
     {
-      "Turn": 4,
-      "WinRate": 0.0,
-      "TieRate": 0.0,
-      "LossRate": 100.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 0.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 7,
-          "TotalHealth": 37
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 2,
-          "TotalHealth": 32
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 12,
-          "TotalHealth": 42
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 3,
-          "TotalHealth": 33
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 16,
-          "TotalHealth": 46
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 13,
-          "TotalHealth": 43
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 4,
+      "heroDamage": 0,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": "Loss",
+      "actualLethalResult": "NoOneDied",
+      "numMinionsPlayedThisTurn": 0,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 0,
+      "tavernTier": 1
     },
     {
-      "Turn": 5,
-      "WinRate": 0.0,
-      "TieRate": 0.0,
-      "LossRate": 100.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 0.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 3,
-          "TotalHealth": 33
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 6,
-          "TotalHealth": 36
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 2,
-          "TotalHealth": 32
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 12,
-          "TotalHealth": 42
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 16,
-          "TotalHealth": 46
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 5,
-          "TotalHealth": 35
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 5,
+      "heroDamage": 0,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": "Loss",
+      "actualLethalResult": "NoOneDied",
+      "numMinionsPlayedThisTurn": 0,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 0,
+      "tavernTier": 1
     },
     {
-      "Turn": 6,
-      "WinRate": 0.0,
-      "TieRate": 0.0,
-      "LossRate": 100.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 0.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 3,
-          "TotalHealth": 33
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 12,
-          "TotalHealth": 42
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 5,
-          "TotalHealth": 35
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 6,
+      "heroDamage": 0,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": "Loss",
+      "actualLethalResult": "NoOneDied",
+      "numMinionsPlayedThisTurn": 0,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 0,
+      "tavernTier": 1
     },
     {
-      "Turn": 7,
-      "WinRate": 0.0,
-      "TieRate": 0.0,
-      "LossRate": 100.0,
-      "TheirDeathRate": 0.0,
-      "MyDeathRate": 100.0,
-      "NumMinionsPlayedThisTurn": 0,
-      "NumSpellsPlayedThisGame": 0,
-      "NumResourcesSpentThisGame": 0,
-      "PlayerHealths": [
-        {
-          "PlayerId": "1",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG23_HERO_201",
-          "HeroName": "Ozumat",
-          "Health": 30,
-          "Armor": 3,
-          "TotalHealth": 33
-        },
-        {
-          "PlayerId": "2",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_67",
-          "HeroName": "Captain Hooktusk",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "3",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG21_HERO_020",
-          "HeroName": "Cookie the Cook",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "4",
-          "PlayerName": "Unknown",
-          "HeroCardId": "BG22_HERO_001",
-          "HeroName": "Bru'kan",
-          "Health": 30,
-          "Armor": 6,
-          "TotalHealth": 36
-        },
-        {
-          "PlayerId": "5",
-          "PlayerName": "5",
-          "HeroCardId": "BG25_HERO_103",
-          "HeroName": "Teron Gorefiend",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "6",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_72",
-          "HeroName": "Lord Barov",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        },
-        {
-          "PlayerId": "7",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_01",
-          "HeroName": "Edwin VanCleef",
-          "Health": 30,
-          "Armor": 0,
-          "TotalHealth": 30
-        },
-        {
-          "PlayerId": "8",
-          "PlayerName": "Unknown",
-          "HeroCardId": "TB_BaconShop_HERO_14",
-          "HeroName": "Queen Wagtoggle",
-          "Health": 30,
-          "Armor": 10,
-          "TotalHealth": 40
-        }
-      ],
-      "CombatResult": null
+      "turn": 7,
+      "heroDamage": -10,
+      "winOdds": 0.0,
+      "tieOdds": 0.0,
+      "lossOdds": 100.0,
+      "averageDamageTaken": 0.0,
+      "averageDamageDealt": 0.0,
+      "actualCombatResult": "Loss",
+      "actualLethalResult": "NoOneDied",
+      "numMinionsPlayedThisTurn": 1,
+      "numSpellsPlayedThisGame": 0,
+      "numResourcesSpentThisGame": 10,
+      "tavernTier": 3
     }
-  ]
+  ],
+  "finalComp": {
+    "board": [
+      {
+        "cardID": "BG29_814",
+        "id": 10000,
+        "tags": {
+          "ATK": 2,
+          "HEALTH": 1,
+          "TAUNT": 0,
+          "DIVINE_SHIELD": 0,
+          "REBORN": 0,
+          "POISONOUS": 0,
+          "VENOMOUS": 0
+        }
+      }
+    ]
+  }
 }
