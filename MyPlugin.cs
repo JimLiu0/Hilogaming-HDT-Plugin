@@ -44,8 +44,8 @@ namespace BattlegroundsGameCollection
         public double lossOdds { get; set; }
         public double averageDamageTaken { get; set; }
         public double averageDamageDealt { get; set; }
-        public string actualCombatResult { get; set; } // "Win", "Loss", or "Tie"
-        public string actualLethalResult { get; set; } // "NoOneDied", "OpponentDied", or "FriendlyDied"
+        public string combatResult { get; set; } // "Win", "Loss", or "Tie"
+        public string lethalResult { get; set; } // "NoOneDied", "OpponentDied", or "FriendlyDied"
         public int numMinionsPlayedThisTurn { get; set; }
         public int numSpellsPlayedThisGame { get; set; }
         public int numResourcesSpentThisGame { get; set; }
@@ -130,7 +130,7 @@ namespace BattlegroundsGameCollection
             }
         }
 
-        private void OnTurnStart(ActivePlayer player)
+        private async void OnTurnStart(ActivePlayer player)
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
@@ -164,6 +164,20 @@ namespace BattlegroundsGameCollection
             {
                 startOfShopPhaseHealths = currentHealths;
                 ProcessFight();
+
+                // Parse combat result from previous turn if we have turns
+                if (game.turns != null && game.turns.Length > 0)
+                {
+                    try
+                    {
+                        await Task.Delay(5000);
+                        ParseCombatResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in ParseCombatResult: {ex}");
+                    }
+                }
 
                 // Initialize turns array if null
                 if (game.turns == null)
@@ -200,18 +214,15 @@ namespace BattlegroundsGameCollection
                 {
                     ProcessTurnMetadata(mainPlayerEntity);
 
-                    // Wait 10 seconds then parse the log for simulation results
-                    Task.Delay(10000).ContinueWith(_ => 
+                    try
                     {
-                        try
-                        {
-                            ParseHDTLog();
-                        }
-                        catch (Exception ex)
-                        {
-                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in delayed ParseHDTLog: {ex}");
-                        }
-                    });
+                        await Task.Delay(10000);
+                        ParseHDTLog();
+                    }
+                    catch (Exception ex)
+                    {
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in ParseHDTLog: {ex}");
+                    }
                 }
             }
         }
@@ -269,6 +280,8 @@ namespace BattlegroundsGameCollection
                 if (game.turns != null && game.turns.Length > 0)
                 {
                     ProcessTurnMetadata(playerEntity);
+                    await Task.Delay(5000);
+                    ParseCombatResult();
                 }
 
                 var playerPlaceEntity = Core.Game.Entities.Values
@@ -382,32 +395,98 @@ namespace BattlegroundsGameCollection
                 }
 
                 // Look for the most recent simulation result
-                var simulationRegex = new Regex(@"BobsBuddyInvoker\.RunSimulation >> WinRate=(\d+(?:\.\d+)?)% \(Lethal=\d+(?:\.\d+)?%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)%");
-                
+                var simulationRegex = new Regex(@"BobsBuddyInvoker\.RunSimulation >> WinRate=(\d+(?:\.\d+)?)% \(Lethal=\d+(?:\.\d+)?%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)% \(Lethal=\d+(?:\.\d+)?%\)");
+                var lastTurn = game.turns.Last();
+
+                // Search from most recent to oldest
                 for (int i = lastLines.Length - 1; i >= 0; i--)
                 {
-                    var match = simulationRegex.Match(lastLines[i]);
-                    if (match.Success)
+                    var simMatch = simulationRegex.Match(lastLines[i]);
+                    if (simMatch.Success)
                     {
-                        var winRate = double.Parse(match.Groups[1].Value);
-                        var tieRate = double.Parse(match.Groups[2].Value);
-                        var lossRate = double.Parse(match.Groups[3].Value);
+                        var winRate = double.Parse(simMatch.Groups[1].Value);
+                        var tieRate = double.Parse(simMatch.Groups[2].Value);
+                        var lossRate = double.Parse(simMatch.Groups[3].Value);
 
-                        // Update the last turn with the simulation results
-                        var lastTurn = game.turns.Last();
                         lastTurn.winOdds = winRate;
                         lastTurn.tieOdds = tieRate;
                         lastTurn.lossOdds = lossRate;
-                        
-                        return; // Exit after finding the most recent simulation
+
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found simulation results - Win: {winRate}%, Tie: {tieRate}%, Loss: {lossRate}%");
+                        return;
                     }
                 }
 
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("No recent simulation results found in log");
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("No simulation results found in log");
             }
             catch (Exception ex)
             {
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error parsing HDT log: {ex}");
+            }
+        }
+
+        private void ParseCombatResult(bool isEndGame=false)
+        {
+            try
+            {
+                // Check if we have any turns to update
+                if (game?.turns == null || game.turns.Length == 0)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("ParseCombatResult: No turns to update");
+                    return;
+                }
+
+                var hdtLogPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "HearthstoneDeckTracker",
+                    "Logs",
+                    "hdt_log.txt"
+                );
+
+                if (!File.Exists(hdtLogPath))
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"HDT log file not found at: {hdtLogPath}");
+                    return;
+                }
+
+                // Read only the last portion of the file
+                string[] lastLines;
+                using (var fileStream = new FileStream(hdtLogPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var reader = new StreamReader(fileStream))
+                {
+                    // Read last 50KB which should be more than enough for recent results
+                    var maxBytesToRead = 50000;
+                    var buffer = new char[maxBytesToRead];
+                    var startPosition = Math.Max(0, fileStream.Length - maxBytesToRead);
+                    fileStream.Seek(startPosition, SeekOrigin.Begin);
+                    reader.Read(buffer, 0, maxBytesToRead);
+                    lastLines = new string(buffer).Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                }
+
+                var combatResultRegex = new Regex(@"BobsBuddyInvoker\.ValidateSimulationResultAsync >> result=(\w+), lethalResult=(\w+)");
+                var lastTurn = game.turns.Last();
+                
+                // Search from most recent to oldest
+                for (int i = lastLines.Length - 1; i >= 0; i--)
+                {
+                    var combatMatch = combatResultRegex.Match(lastLines[i]);
+                    if (combatMatch.Success)
+                    {
+                        // If it's end game we only want to update if the lethal result is not NoOneDied
+                        if (!isEndGame || combatMatch.Groups[2].Value != "NoOneDied")
+                        {
+                            lastTurn.combatResult = combatMatch.Groups[1].Value;
+                            lastTurn.lethalResult = combatMatch.Groups[2].Value;
+                            return;
+                        }
+                    }
+                }
+
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("No combat results found in log");
+            }
+            catch (Exception ex)
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error parsing combat result: {ex}");
             }
         }
 
