@@ -316,19 +316,9 @@ namespace BattlegroundsGameCollection
                             }
                         }).ToArray()
                     };
-
-                    // Log final board state
-                    foreach (var minion in game.finalComp.board)
-                    {
-                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                            $"Final board minion: {minion.name} ({minion.cardID}) - {minion.tags.ATK}/{minion.tags.HEALTH}");
-                    }
                 }
-
-                // Calculate MMR
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("Starting MMR calculation...");
+                
                 await CalculateAndUpdateMmr();
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("Game end processing complete");
             }
             catch (Exception ex)
             {
@@ -408,12 +398,6 @@ namespace BattlegroundsGameCollection
                         lastTurn.winOdds = winRate;
                         lastTurn.tieOdds = tieRate;
                         lastTurn.lossOdds = lossRate;
-
-                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                            $"Updated turn {lastTurn.turn} simulation odds:" +
-                            $"\nWin: {winRate}%" +
-                            $"\nTie: {tieRate}%" +
-                            $"\nLoss: {lossRate}%");
                         
                         return; // Exit after finding the most recent simulation
                     }
