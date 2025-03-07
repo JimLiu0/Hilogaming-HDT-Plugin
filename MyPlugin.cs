@@ -143,16 +143,6 @@ namespace BattlegroundsGameCollection
             var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
             var mainPlayerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
 
-            foreach (var entity in playerEntities)
-            {
-                var isPlayer = entity.IsPlayer;
-
-                if (isPlayer)
-                {
-                    game.triplesCreated = entity.GetTag(GameTag.PLAYER_TRIPLES);
-                }
-            }
-
             var currentHealths = playerEntities.Select(x => new HealthData
             {
                 playerId = x.GetTag(GameTag.PLAYER_ID),
@@ -439,6 +429,17 @@ namespace BattlegroundsGameCollection
 
         private void ProcessTurnMetadata(Entity mainPlayerEntity)
         {
+            var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
+
+            foreach (var entity in playerEntities)
+            {
+                var isPlayer = entity.IsPlayer;
+
+                if (isPlayer)
+                {
+                    game.triplesCreated = entity.GetTag(GameTag.PLAYER_TRIPLES);
+                }
+            }
             var lastTurn = game.turns.Last();
             lastTurn.numMinionsPlayedThisTurn = mainPlayerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN);
             lastTurn.numSpellsPlayedThisGame = mainPlayerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME);
