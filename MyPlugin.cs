@@ -128,13 +128,16 @@ namespace BattlegroundsGameCollection
                     game.server = "REGION_AP";
                     break;
             }
-            // Figure out playerIdentifier
         }
 
         private void OnTurnStart(ActivePlayer player)
         {
             if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
                 return;
+
+            var hero = Core.Game.Player.Hero;
+            game.heroPlayed = hero.CardId;
+            game.heroPlayedName = hero.Card?.LocalizedName ?? "Unknown";
 
             var currentTurn = Core.Game.GetTurnNumber();
             var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
@@ -151,6 +154,7 @@ namespace BattlegroundsGameCollection
             // Shop phase
             if (player == ActivePlayer.Player)
             {
+                startOfShopPhaseHealths = currentHealths;
                 ProcessFight();
 
                 // Initialize turns array if null
@@ -159,6 +163,8 @@ namespace BattlegroundsGameCollection
                     game.turns = new TurnData[0];
                 }
 
+                var nextOpponentId = mainPlayerEntity.GetTag(GameTag.NEXT_OPPONENT_PLAYER_ID);
+
                 // Create new turn and add it to the array
                 var turnData = new TurnData
                 {
@@ -166,7 +172,8 @@ namespace BattlegroundsGameCollection
                     numMinionsPlayedThisTurn = 0,
                     numSpellsPlayedThisGame = 0,
                     numResourcesSpentThisGame = 0,
-                    tavernTier = 1
+                    tavernTier = 1,
+                    opponentId = nextOpponentId
                 };
 
                 // Add the new turn to the array
@@ -222,39 +229,86 @@ namespace BattlegroundsGameCollection
 
         private async void OnGameEnd()
         {
-            if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
-                return;
-
-            // Calculate final damage and get fight simulation data TBD
-            ProcessFight();
-      
-            // Do placement stuff and meta data stuff
-            game.placement = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer).GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
-            game.gameEndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ff");
-            game.gameDurationInSeconds = (int)(DateTime.Now - gameStartTime).TotalSeconds;
-            game.heroPlayed = Core.Game.Player.Hero.CardId;
-            game.heroPlayedName = Core.Game.Player.Hero.Card?.LocalizedName;
-
-            var playerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
-            var playerBoardEntities = Core.Game.Entities.Values
-                .Where(e => e.IsInPlay && e.IsMinion && e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
-                .OrderBy(e => e.GetTag(GameTag.ZONE_POSITION));
-
-            game.finalComp = new FinalComp();
-            game.finalComp.turn = Core.Game.GetTurnNumber();
-            game.finalComp.board = playerBoardEntities.Select(x => new BoardMinion
+            try
             {
-                cardID = x.CardId,
-                name = x.Card?.LocalizedName ?? "Unknown",
-                tags = new Tag
-                {
-                    ATK = x.GetTag(GameTag.ATK),
-                    HEALTH = x.GetTag(GameTag.HEALTH)
-                }
-            }).ToArray();
+                if (Core.Game.CurrentGameMode != GameMode.Battlegrounds)
+                    return;
 
-            // Do final board stuff phase 2
-            await CalculateAndUpdateMmr();
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("=== Game End ===");
+
+                // Check if game object is initialized
+                if (game == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("OnGameEnd: game object is null");
+                    return;
+                }
+
+                // Get player entity with null check
+                var playerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
+                if (playerEntity == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("OnGameEnd: Could not find player entity");
+                    return;
+                }
+
+                game.placement = playerEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Final placement: {game.placement}");
+
+                // Calculate final damage and get fight simulation data
+                ProcessFight();
+
+                // Update metadata
+                game.playerIdentifier = Core.Game.Player.Name;
+                game.gameEndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ff");
+                game.gameDurationInSeconds = (int)(DateTime.Now - gameStartTime).TotalSeconds;
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Game duration: {game.gameDurationInSeconds} seconds");
+
+                // Get final board state with null checks
+                if (Core.Game.Entities?.Values == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("OnGameEnd: Game entities are null");
+                }
+                else
+                {
+                    var playerBoardEntities = Core.Game.Entities.Values
+                        .Where(e => e != null && e.IsInPlay && e.IsMinion && e.IsControlledBy(playerEntity.GetTag(GameTag.CONTROLLER)))
+                        .OrderBy(e => e.GetTag(GameTag.ZONE_POSITION))
+                        .ToList();
+
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Found {playerBoardEntities.Count} minions on final board");
+
+                    game.finalComp = new FinalComp
+                    {
+                        turn = Core.Game.GetTurnNumber(),
+                        board = playerBoardEntities.Select(x => new BoardMinion
+                        {
+                            cardID = x.CardId,
+                            name = x.Card?.LocalizedName ?? "Unknown",
+                            tags = new Tag
+                            {
+                                ATK = x.GetTag(GameTag.ATK),
+                                HEALTH = x.GetTag(GameTag.HEALTH)
+                            }
+                        }).ToArray()
+                    };
+
+                    // Log final board state
+                    foreach (var minion in game.finalComp.board)
+                    {
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                            $"Final board minion: {minion.name} ({minion.cardID}) - {minion.tags.ATK}/{minion.tags.HEALTH}");
+                    }
+                }
+
+                // Calculate MMR
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("Starting MMR calculation...");
+                await CalculateAndUpdateMmr();
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("Game end processing complete");
+            }
+            catch (Exception ex)
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in OnGameEnd: {ex.Message}\nStack trace: {ex.StackTrace}");
+            }
         }
 
         private async Task CalculateAndUpdateMmr()
@@ -276,50 +330,96 @@ namespace BattlegroundsGameCollection
 
         private void ProcessFight()
         {
-            // Only process if we have turns
-            if (game.turns == null || game.turns.Length == 0)
+            try
             {
-                return;
+                // Only process if we have turns
+                if (game?.turns == null || game.turns.Length == 0)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("ProcessFight: No turns to process");
+                    return;
+                }
+
+                var mainPlayerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
+                if (mainPlayerEntity == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("ProcessFight: Could not find player entity");
+                    return;
+                }
+
+                var lastTurn = game.turns.Last();
+                if (lastTurn == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("ProcessFight: Last turn is null");
+                    return;
+                }
+
+                // Skip if we don't have an opponent ID yet
+                if (lastTurn.opponentId == 0)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"ProcessFight: No opponent ID for turn {lastTurn.turn}");
+                    return;
+                }
+
+                // Skip if we don't have combat phase healths
+                if (startOfCombatPhaseHealths == null || startOfCombatPhaseHealths.Length == 0)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("ProcessFight: No combat phase health data");
+                    return;
+                }
+
+                var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
+                var currentHealths = playerEntities.Select(x => new HealthData
+                {
+                    playerId = x.GetTag(GameTag.PLAYER_ID),
+                    health = x.GetTag(GameTag.HEALTH),
+                    armor = x.GetTag(GameTag.ARMOR),
+                    damage = x.GetTag(GameTag.DAMAGE)
+                }).ToArray();
+
+                startOfShopPhaseHealths = currentHealths;
+
+                // Get the healths for opponent and player with null checks
+                var opponentCombatHealth = startOfCombatPhaseHealths.FirstOrDefault(x => x.playerId == lastTurn.opponentId);
+                var opponentShopHealth = startOfShopPhaseHealths.FirstOrDefault(x => x.playerId == lastTurn.opponentId);
+                var playerCombatHealth = startOfCombatPhaseHealths.FirstOrDefault(x => x.playerId == mainPlayerEntity.GetTag(GameTag.PLAYER_ID));
+                var playerShopHealth = startOfShopPhaseHealths.FirstOrDefault(x => x.playerId == mainPlayerEntity.GetTag(GameTag.PLAYER_ID));
+
+                if (opponentCombatHealth == null || opponentShopHealth == null || 
+                    playerCombatHealth == null || playerShopHealth == null)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("ProcessFight: Missing health data for player or opponent");
+                    return;
+                }
+
+                // Log health values for debugging
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                    $"Turn {lastTurn.turn} health values:" +
+                    $"\nPlayer Combat Health: {playerCombatHealth.totalHealth}" +
+                    $"\nPlayer Shop Health: {playerShopHealth.totalHealth}" +
+                    $"\nOpponent Combat Health: {opponentCombatHealth.totalHealth}" +
+                    $"\nOpponent Shop Health: {opponentShopHealth.totalHealth}");
+
+                // Calculate the damage done, depending on who has different health that's who won
+                if (playerShopHealth.totalHealth < playerCombatHealth.totalHealth)
+                {
+                    lastTurn.heroDamage = -(playerCombatHealth.totalHealth - playerShopHealth.totalHealth);
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"We took {-lastTurn.heroDamage} damage");
+                }
+                else if (opponentShopHealth.totalHealth < opponentCombatHealth.totalHealth)
+                {
+                    lastTurn.heroDamage = opponentCombatHealth.totalHealth - opponentShopHealth.totalHealth;
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"We dealt {lastTurn.heroDamage} damage");
+                }
+                else
+                {
+                    lastTurn.heroDamage = 0;
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("No damage dealt (tie)");
+                }
             }
-
-            var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
-            var mainPlayerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
-            var currentHealths = playerEntities.Select(x => new HealthData
+            catch (Exception ex)
             {
-                playerId = x.GetTag(GameTag.PLAYER_ID),
-                health = x.GetTag(GameTag.HEALTH),
-                armor = x.GetTag(GameTag.ARMOR),
-                damage = x.GetTag(GameTag.DAMAGE)
-            }).ToArray();
-
-            startOfShopPhaseHealths = currentHealths;
-
-            var lastTurn = game.turns.Last();
-            // Figure out how much damage was done during the last combat phase
-
-            // Get the opponent id from last turn
-            var opponentId = lastTurn.opponentId;
-
-            // Get the healths for opponent and player
-            var opponentHealthStartOfCombat = startOfCombatPhaseHealths.FirstOrDefault(x => x.playerId == opponentId).totalHealth;
-            var opponentHealthStartOfShop = startOfShopPhaseHealths.FirstOrDefault(x => x.playerId == opponentId).totalHealth;
-            var playerHealthStartOfCombat = startOfCombatPhaseHealths.FirstOrDefault(x => x.playerId == mainPlayerEntity.GetTag(GameTag.PLAYER_ID)).totalHealth;
-            var playerHealthStartOfShop = startOfShopPhaseHealths.FirstOrDefault(x => x.playerId == mainPlayerEntity.GetTag(GameTag.PLAYER_ID)).totalHealth;
-
-            // Calculate the damage done, depending on who has different health that's who won
-            if (playerHealthStartOfShop < playerHealthStartOfCombat)
-            {
-                lastTurn.heroDamage = playerHealthStartOfCombat - playerHealthStartOfShop;
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in ProcessFight: {ex}");
             }
-            else if (opponentHealthStartOfShop < opponentHealthStartOfCombat)
-            {
-                lastTurn.heroDamage = opponentHealthStartOfCombat - opponentHealthStartOfShop;
-            }
-            else
-            {
-                lastTurn.heroDamage = 0;
-            }
-            // Get the simulation results from the fight phase and also add to the last turn can be done in 2nd phase
         }
     }
 }
