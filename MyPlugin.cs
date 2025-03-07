@@ -143,6 +143,9 @@ namespace BattlegroundsGameCollection
             var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
             var mainPlayerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
 
+            game.triplesCreated = mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES);
+            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart: Current turn {currentTurn}, Triples count = {mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES)}");
+
             var currentHealths = playerEntities.Select(x => new HealthData
             {
                 playerId = x.GetTag(GameTag.PLAYER_ID),
@@ -150,6 +153,14 @@ namespace BattlegroundsGameCollection
                 armor = x.GetTag(GameTag.ARMOR),
                 damage = x.GetTag(GameTag.DAMAGE)
             }).ToArray();
+
+            // Log triples for all players
+            foreach (var entity in playerEntities)
+            {
+                var triples = entity.GetTag(GameTag.PLAYER_TRIPLES);
+                var playerId = entity.GetTag(GameTag.PLAYER_ID);
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Player {playerId} triples count: {triples}");
+            }
 
             // Shop phase
             if (player == ActivePlayer.Player)
@@ -190,13 +201,20 @@ namespace BattlegroundsGameCollection
 
                 if (game.turns != null && game.turns.Length > 0)
                 {
-                    var lastTurn = game.turns.Last();
+                    ProcessTurnMetadata(mainPlayerEntity);
 
-                    game.triplesCreated = mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES);
-                    lastTurn.numMinionsPlayedThisTurn = mainPlayerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN);
-                    lastTurn.numSpellsPlayedThisGame = mainPlayerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME);
-                    lastTurn.numResourcesSpentThisGame = mainPlayerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME);
-                    lastTurn.tavernTier = mainPlayerEntity.GetTag(GameTag.PLAYER_TECH_LEVEL);
+                    // Wait 10 seconds then parse the log for simulation results
+                    Task.Delay(10000).ContinueWith(_ => 
+                    {
+                        try
+                        {
+                            ParseHDTLog();
+                        }
+                        catch (Exception ex)
+                        {
+                            Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in delayed ParseHDTLog: {ex}");
+                        }
+                    });
                 }
             }
         }
@@ -251,7 +269,17 @@ namespace BattlegroundsGameCollection
                     return;
                 }
 
-                game.placement = playerEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
+                if (game.turns != null && game.turns.Length > 0)
+                {
+                    ProcessTurnMetadata(playerEntity);
+                }
+
+                var playerPlaceEntity = Core.Game.Entities.Values
+                .FirstOrDefault(e => e.GetTag(GameTag.PLAYER_ID) == playerEntity.GetTag(GameTag.PLAYER_ID) 
+                                && e.HasTag(GameTag.PLAYER_LEADERBOARD_PLACE));
+
+                game.placement = playerPlaceEntity?.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) ?? 
+                                playerEntity.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE);
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Final placement: {game.placement}");
 
                 // Calculate final damage and get fight simulation data
@@ -326,6 +354,89 @@ namespace BattlegroundsGameCollection
             game.mmrGained = mmrChange;
 
             Log();
+        }
+
+        private void ParseHDTLog()
+        {
+            try
+            {
+                // Check if we have any turns to update
+                if (game?.turns == null || game.turns.Length == 0)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("ParseHDTLog: No turns to update");
+                    return;
+                }
+
+                var hdtLogPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "HearthstoneDeckTracker",
+                    "Logs",
+                    "hdt_log.txt"
+                );
+
+                if (!File.Exists(hdtLogPath))
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"HDT log file not found at: {hdtLogPath}");
+                    return;
+                }
+
+                // Read only the last portion of the file
+                string[] lastLines;
+                using (var fileStream = new FileStream(hdtLogPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var reader = new StreamReader(fileStream))
+                {
+                    // Read last 50KB which should be more than enough for recent simulation results
+                    var maxBytesToRead = 50000;
+                    var buffer = new char[maxBytesToRead];
+                    var startPosition = Math.Max(0, fileStream.Length - maxBytesToRead);
+                    fileStream.Seek(startPosition, SeekOrigin.Begin);
+                    reader.Read(buffer, 0, maxBytesToRead);
+                    lastLines = new string(buffer).Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                }
+
+                // Look for the most recent simulation result
+                var simulationRegex = new Regex(@"BobsBuddyInvoker\.RunSimulation >> WinRate=(\d+(?:\.\d+)?)% \(Lethal=\d+(?:\.\d+)?%\), TieRate=(\d+(?:\.\d+)?)%, LossRate=(\d+(?:\.\d+)?)%");
+                
+                for (int i = lastLines.Length - 1; i >= 0; i--)
+                {
+                    var match = simulationRegex.Match(lastLines[i]);
+                    if (match.Success)
+                    {
+                        var winRate = double.Parse(match.Groups[1].Value);
+                        var tieRate = double.Parse(match.Groups[2].Value);
+                        var lossRate = double.Parse(match.Groups[3].Value);
+
+                        // Update the last turn with the simulation results
+                        var lastTurn = game.turns.Last();
+                        lastTurn.winOdds = winRate;
+                        lastTurn.tieOdds = tieRate;
+                        lastTurn.lossOdds = lossRate;
+
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
+                            $"Updated turn {lastTurn.turn} simulation odds:" +
+                            $"\nWin: {winRate}%" +
+                            $"\nTie: {tieRate}%" +
+                            $"\nLoss: {lossRate}%");
+                        
+                        return; // Exit after finding the most recent simulation
+                    }
+                }
+
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info("No recent simulation results found in log");
+            }
+            catch (Exception ex)
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error parsing HDT log: {ex}");
+            }
+        }
+
+        private void ProcessTurnMetadata(Entity mainPlayerEntity)
+        {
+            var lastTurn = game.turns.Last();
+            lastTurn.numMinionsPlayedThisTurn = mainPlayerEntity.GetTag(GameTag.NUM_MINIONS_PLAYED_THIS_TURN);
+            lastTurn.numSpellsPlayedThisGame = mainPlayerEntity.GetTag(GameTag.NUM_SPELLS_PLAYED_THIS_GAME);
+            lastTurn.numResourcesSpentThisGame = mainPlayerEntity.GetTag(GameTag.NUM_RESOURCES_SPENT_THIS_GAME);
+            lastTurn.tavernTier = mainPlayerEntity.GetTag(GameTag.PLAYER_TECH_LEVEL);
         }
 
         private void ProcessFight()
