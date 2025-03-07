@@ -143,8 +143,15 @@ namespace BattlegroundsGameCollection
             var playerEntities = Core.Game.Entities.Values.Where(x => x.GetTag(GameTag.PLAYER_LEADERBOARD_PLACE) != 0).ToList();
             var mainPlayerEntity = Core.Game.Entities.Values.FirstOrDefault(x => x.IsPlayer);
 
-            game.triplesCreated = mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES);
-            Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"OnTurnStart: Current turn {currentTurn}, Triples count = {mainPlayerEntity.GetTag(GameTag.PLAYER_TRIPLES)}");
+            foreach (var entity in playerEntities)
+            {
+                var isPlayer = entity.IsPlayer;
+
+                if (isPlayer)
+                {
+                    game.triplesCreated = entity.GetTag(GameTag.PLAYER_TRIPLES);
+                }
+            }
 
             var currentHealths = playerEntities.Select(x => new HealthData
             {
