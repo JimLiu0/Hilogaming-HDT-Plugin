@@ -156,14 +156,6 @@ namespace BattlegroundsGameCollection
                 damage = x.GetTag(GameTag.DAMAGE)
             }).ToArray();
 
-            // Log triples for all players
-            foreach (var entity in playerEntities)
-            {
-                var triples = entity.GetTag(GameTag.PLAYER_TRIPLES);
-                var playerId = entity.GetTag(GameTag.PLAYER_ID);
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Player {playerId} triples count: {triples}");
-            }
-
             // Shop phase
             if (player == ActivePlayer.Player)
             {
@@ -554,14 +546,6 @@ namespace BattlegroundsGameCollection
                     Hearthstone_Deck_Tracker.Utility.Logging.Log.Error("ProcessFight: Missing health data for player or opponent");
                     return;
                 }
-
-                // Log health values for debugging
-                Hearthstone_Deck_Tracker.Utility.Logging.Log.Info(
-                    $"Turn {lastTurn.turn} health values:" +
-                    $"\nPlayer Combat Health: {playerCombatHealth.totalHealth}" +
-                    $"\nPlayer Shop Health: {playerShopHealth.totalHealth}" +
-                    $"\nOpponent Combat Health: {opponentCombatHealth.totalHealth}" +
-                    $"\nOpponent Shop Health: {opponentShopHealth.totalHealth}");
 
                 // Calculate the damage done, depending on who has different health that's who won
                 if (playerShopHealth.totalHealth < playerCombatHealth.totalHealth)
