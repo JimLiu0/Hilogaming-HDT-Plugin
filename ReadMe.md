@@ -4,10 +4,26 @@ This plugin collects Hearthstone Battlegrounds game data from Hearthstone Deck T
 
 ## Installation
 
-1. Download the plugin from the [releases page](https://github.com/LiiHS/HiloGameCollector/releases).
+1. Download BattlegroundsGameCollection.zip from [releases page](https://github.com/JimLiu0/BattlegroundsGameCollection/releases).
 2. Extract the zip file.
-3. Copy the `HiloGameCollector.dll` file to the `HearthstoneDeckTracker\Plugins` folder.
-4. Restart Hearthstone Deck Tracker.
-5. Enable the plugin in the plugin manager.
+3. Open HDT, choose Options->Tracker->Plugins->Plugins Folder.
+4. Copy the `BattlegroundsGameCollection.dll` file to the `HearthstoneDeckTracker\Plugins` folder.
 
+![image](https://i.imgur.com/rSpCYug.png)
+
+5. Restart HDT and enable the plugin.
+
+![image](https://i.imgur.com/ztNI74q.png)
+
+## Getting Started with Hilo
+
+1. Create an account [https://www.hilogaming.me/register]
+
+2. Choose Hearthstone Battlegrounds as one of your top games.
+
+![image](https://i.imgur.com/9Nc9J5E.png)
+
+3. Finish registration and go to the settings page and add your battle tag [http://hilogaming.me/settings]
+
+4. Follow the instructions to install the HDT plugin above if you haven't already!
 

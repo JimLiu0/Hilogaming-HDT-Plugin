@@ -4,7 +4,7 @@ using Core = Hearthstone_Deck_Tracker.API.Core;
 using Hearthstone_Deck_Tracker.Enums;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using BattlegroundsGameCollection.Logic;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using Hearthstone_Deck_Tracker.Hearthstone;
@@ -326,8 +326,6 @@ namespace BattlegroundsGameCollection
 
             game.startingMmr = ratingBefore;
             game.mmrGained = mmrChange;
-
-            Log();
         }
 
         private void ParseHDTLog()
@@ -574,7 +572,7 @@ namespace BattlegroundsGameCollection
         {
             try
             {
-                var jsonContent = JsonConvert.SerializeObject(game);
+                var jsonContent = JsonSerializer.Serialize(game);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 // Choose which URL to use (you can set this based on a config or environment variable)

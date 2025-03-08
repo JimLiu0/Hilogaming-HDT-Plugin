@@ -8,10 +8,24 @@
   <ItemGroup>
     <Reference Include="HearthstoneDeckTracker">
       <HintPath>C:\Users\{YourUsername}\AppData\Local\HearthstoneDeckTracker\app-{version}\HearthstoneDeckTracker.exe</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>C:\Users\{YourUsername}\AppData\Local\HearthstoneDeckTracker\app-{version}\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <PackageReference Include="System.Text.Json" Version="9.0.0.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
   </ItemGroup>
+
+  <Target Name="ILRepack" AfterTargets="Build">
+    <PropertyGroup>
+      <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+    </PropertyGroup>
+
+    <ILRepack
+        OutputType="$(OutputType)"
+        MainAssembly="$(AssemblyName).dll"
+        OutputAssembly="$(AssemblyName).dll"
+        InputAssemblies="$(AssemblyName).dll;System.Text.Json.dll"
+        WorkingDirectory="$(WorkingDirectory)"
+        />
+  </Target>
 </Project> 
