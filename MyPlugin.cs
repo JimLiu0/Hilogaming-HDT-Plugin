@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Hearthstone_Deck_Tracker.Utility.Battlegrounds;
+using System.Text;
 
 namespace BattlegroundsGameCollection
 {
@@ -87,6 +88,9 @@ namespace BattlegroundsGameCollection
         private DateTime gameStartTime;
         private HealthData[] startOfShopPhaseHealths = new HealthData[8];
         private HealthData[] startOfCombatPhaseHealths = new HealthData[8];
+        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly string _devUrl = "https://hilo-backend.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/";
+        private readonly string _prodUrl = "https://hilo-production.azurewebsites.net/api/hearthstone-battlegrounds/submit-game-data/";
 
         public BattlegroundsGameCollection()
         {
@@ -97,6 +101,7 @@ namespace BattlegroundsGameCollection
 
         public void Dispose()
         {
+            _httpClient.Dispose();
             game = null;
         }
 
@@ -332,6 +337,12 @@ namespace BattlegroundsGameCollection
                 }
                 
                 await CalculateAndUpdateMmr();
+                
+                // Add the HTTP POST request after everything else is done
+                await SubmitGameData();
+                
+                // Still write to file as backup
+                Log();
             }
             catch (Exception ex)
             {
@@ -601,6 +612,33 @@ namespace BattlegroundsGameCollection
             catch (Exception ex)
             {
                 Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error in ProcessFight: {ex}");
+            }
+        }
+
+        private async Task SubmitGameData()
+        {
+            try
+            {
+                var jsonContent = JsonConvert.SerializeObject(game);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                // Choose which URL to use (you can set this based on a config or environment variable)
+                var url = _devUrl; // or _prodUrl for production
+
+                var response = await _httpClient.PostAsync(url, content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Successfully submitted game data to {url}");
+                }
+                else
+                {
+                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Failed to submit game data. Status: {response.StatusCode}, Response: {await response.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Error submitting game data: {ex.Message}");
             }
         }
     }
