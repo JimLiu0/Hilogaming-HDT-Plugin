@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>HiloGameCollector</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="HearthstoneDeckTracker">
+      <HintPath>C:\Users\{YourUsername}\AppData\Local\HearthstoneDeckTracker\app-{version}\HearthstoneDeckTracker.exe</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>C:\Users\{YourUsername}\AppData\Local\HearthstoneDeckTracker\app-{version}\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+</Project> 

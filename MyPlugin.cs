@@ -232,32 +232,6 @@ namespace BattlegroundsGameCollection
             }
         }
 
-        private void Log()
-        {
-            var jsonContent = JsonConvert.SerializeObject(game, Formatting.Indented);
-
-            // Create BGGames directory if it doesn't exist
-            var bgGamesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BGGames");
-            if (!Directory.Exists(bgGamesDir))
-            {
-                Directory.CreateDirectory(bgGamesDir);
-            }
-
-            // Create HSReplay subdirectory
-            var hsReplayDir = Path.Combine(bgGamesDir, "HSReplay");
-            if (!Directory.Exists(hsReplayDir))
-            {
-                Directory.CreateDirectory(hsReplayDir);
-            }
-
-            // Generate filename based on current date/time
-            var filename = $"game_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json";
-            var fullPath = Path.Combine(hsReplayDir, filename);
-
-            // Save the JSON file
-            File.WriteAllText(fullPath, jsonContent);
-        }
-
         private async void OnGameEnd()
         {
             try
@@ -340,9 +314,6 @@ namespace BattlegroundsGameCollection
                 
                 // Add the HTTP POST request after everything else is done
                 await SubmitGameData();
-                
-                // Still write to file as backup
-                Log();
             }
             catch (Exception ex)
             {
