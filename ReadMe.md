@@ -17,13 +17,13 @@ This plugin collects Hearthstone Battlegrounds game data from Hearthstone Deck T
 
 ## Getting Started with Hilo
 
-1. Create an account [https://www.hilogaming.me/register]
+1. Create an account [here](https://brave-forest-07a09b00f-preview.eastus2.5.azurestaticapps.net/register)
 
 2. Choose Hearthstone Battlegrounds as one of your top games.
 
 ![image](https://i.imgur.com/9Nc9J5E.png)
 
-3. Finish registration and go to the settings page and add your battle tag [http://hilogaming.me/settings]
+3. Finish registration and go to [settings](https://brave-forest-07a09b00f-preview.eastus2.5.azurestaticapps.net/settings) and add your battle tag.
 
 4. Follow the instructions to install the HDT plugin above if you haven't already!
 

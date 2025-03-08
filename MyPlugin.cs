@@ -4,7 +4,6 @@ using Core = Hearthstone_Deck_Tracker.API.Core;
 using Hearthstone_Deck_Tracker.Enums;
 using Hearthstone_Deck_Tracker.Hearthstone.Entities;
 using BattlegroundsGameCollection.Logic;
-using System.Text.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using Hearthstone_Deck_Tracker.Hearthstone;
@@ -15,7 +14,6 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Hearthstone_Deck_Tracker.Utility.Battlegrounds;
 using System.Text;
-
 namespace BattlegroundsGameCollection
 {
     public class GameData
@@ -572,21 +570,63 @@ namespace BattlegroundsGameCollection
         {
             try
             {
-                var jsonContent = JsonSerializer.Serialize(game);
+                // Manual JSON creation
+                var jsonContent = $@"{{
+                    ""playerIdentifier"": ""{game.playerIdentifier}"",
+                    ""placement"": {game.placement},
+                    ""startingMmr"": {game.startingMmr},
+                    ""mmrGained"": {game.mmrGained},
+                    ""gameDurationInSeconds"": {game.gameDurationInSeconds},
+                    ""gameEndDate"": ""{game.gameEndDate}"",
+                    ""heroPlayed"": ""{game.heroPlayed}"",
+                    ""heroPlayedName"": ""{game.heroPlayedName}"",
+                    ""triplesCreated"": {game.triplesCreated},
+                    ""battleLuck"": {game.battleLuck},
+                    ""server"": ""{game.server}"",
+                    ""turns"": [{string.Join(",", game.turns.Select(t => $@"{{
+                        ""turn"": {t.turn},
+                        ""opponentId"": {t.opponentId},
+                        ""heroDamage"": {t.heroDamage},
+                        ""winOdds"": {t.winOdds},
+                        ""tieOdds"": {t.tieOdds},
+                        ""lossOdds"": {t.lossOdds},
+                        ""averageDamageTaken"": {t.averageDamageTaken},
+                        ""averageDamageDealt"": {t.averageDamageDealt},
+                        ""combatResult"": ""{t.combatResult}"",
+                        ""lethalResult"": ""{t.lethalResult}"",
+                        ""numMinionsPlayedThisTurn"": {t.numMinionsPlayedThisTurn},
+                        ""numSpellsPlayedThisGame"": {t.numSpellsPlayedThisGame},
+                        ""numResourcesSpentThisGame"": {t.numResourcesSpentThisGame},
+                        ""tavernTier"": {t.tavernTier}
+                    }}"))}],
+                    ""finalComp"": {{
+                        ""board"": [{string.Join(",", game.finalComp.board.Select(b => $@"{{
+                            ""cardID"": ""{b.cardID}"",
+                            ""name"": ""{b.name}"",
+                            ""tags"": {{
+                                ""ATK"": {b.tags.ATK},
+                                ""HEALTH"": {b.tags.HEALTH}
+                            }}
+                        }}"))}],
+                        ""turn"": {game.finalComp.turn}
+                    }}
+                }}";
+
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var urls = new List<string> { _devUrl, _prodUrl };
 
-                // Choose which URL to use (you can set this based on a config or environment variable)
-                var url = _devUrl; // or _prodUrl for production
+                foreach (var url in urls)
+                {
+                    var response = await _httpClient.PostAsync(url, content);
 
-                var response = await _httpClient.PostAsync(url, content);
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Successfully submitted game data to {url}");
-                }
-                else
-                {
-                    Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Failed to submit game data. Status: {response.StatusCode}, Response: {await response.Content.ReadAsStringAsync()}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Info($"Successfully submitted game data to {url}");
+                    }
+                    else
+                    {
+                        Hearthstone_Deck_Tracker.Utility.Logging.Log.Error($"Failed to submit game data. Status: {response.StatusCode}, Response: {await response.Content.ReadAsStringAsync()}");
+                    }
                 }
             }
             catch (Exception ex)
