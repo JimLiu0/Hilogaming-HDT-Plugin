@@ -24,13 +24,13 @@ namespace BattlegroundsGameCollection
         /// <value>The author's name.</value>
         public string Author => "LiiHS";
 
-        public string ButtonText => "BG Game Collection";
+        public string ButtonText => "No Settings";
 
         /// <summary>
         /// The Plug-in's description.
         /// </summary>
         /// <value>The Plug-in's description.</value>
-        public string Description => "Collects Battlegrounds game data and logs it for analysis";
+        public string Description => "Collects Battlegrounds game data and sends it to hilo servers";
 
         /// <summary>
         /// Gets or sets the main <see cref="MenuItem">Menu Item</see>.
@@ -38,7 +38,7 @@ namespace BattlegroundsGameCollection
         /// <value>The main <see cref="MenuItem">Menu Item</see>.</value>
         public MenuItem MenuItem { get; set; } = null;
 
-        public string Name => "BG Game Collection";
+        public string Name => "Hilo Game Collector";
 
         /// <summary>
         /// The gets plug-in version.from the assembly

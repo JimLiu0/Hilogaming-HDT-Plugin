@@ -1,4 +1,0 @@
-Ongoing issues:
-
-- last turn heroDamage if dying, last turn lethalresult if dying: both are wrong
-- last turn is not calculating heroDamage at all. Needs to be done onGameEnd

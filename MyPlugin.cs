@@ -141,7 +141,7 @@ namespace BattlegroundsGameCollection
                 return;
 
             var hero = Core.Game.Player.Hero;
-            game.heroPlayed = hero.CardId;
+            game.heroPlayed = hero.CardId.Split(new[] { "_SKIN_" }, StringSplitOptions.None)[0];;
             game.heroPlayedName = hero.Card?.LocalizedName ?? "Unknown";
 
             var currentTurn = Core.Game.GetTurnNumber();
