@@ -23,7 +23,7 @@ This plugin collects Hearthstone Battlegrounds game data from Hearthstone Deck T
 
 ![image](https://i.imgur.com/9Nc9J5E.png)
 
-3. Finish registration and go to [settings](https://brave-forest-07a09b00f-preview.eastus2.5.azurestaticapps.net/settings) and add your battle tag.
+3. Finish registration and go to settings and add your battle tag.
 
 4. Follow the instructions to install the HDT plugin above if you haven't already!
 
