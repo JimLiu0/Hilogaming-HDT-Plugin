@@ -17,7 +17,7 @@ This plugin collects Hearthstone Battlegrounds game data from Hearthstone Deck T
 
 ## Getting Started with Hilo
 
-1. Create an account [here](https://brave-forest-07a09b00f-preview.eastus2.5.azurestaticapps.net/register)
+1. Create an account [here](https://www.hilogaming.me/register)
 
 2. Choose Hearthstone Battlegrounds as one of your top games.
 
