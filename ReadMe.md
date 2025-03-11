@@ -8,9 +8,6 @@ This plugin collects Hearthstone Battlegrounds game data from Hearthstone Deck T
 2. Extract the zip file.
 3. Open HDT, choose Options->Tracker->Plugins->Plugins Folder.
 4. Copy the `BattlegroundsGameCollection.dll` file to the `HearthstoneDeckTracker\Plugins` folder.
-
-![image](https://i.imgur.com/rSpCYug.png)
-
 5. Restart HDT and enable the plugin.
 
 ![image](https://i.imgur.com/ztNI74q.png)
