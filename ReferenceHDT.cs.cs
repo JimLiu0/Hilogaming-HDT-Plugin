@@ -570,6 +570,7 @@ namespace BattlegroundsGameCollection
         {
             try
             {
+                // Manual JSON creation
                 var jsonContent = $@"{{
                     ""playerIdentifier"": ""{game.playerIdentifier}"",
                     ""placement"": {game.placement},
@@ -611,13 +612,11 @@ namespace BattlegroundsGameCollection
                     }}
                 }}";
 
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
                 var urls = new List<string> { _devUrl, _prodUrl };
 
                 foreach (var url in urls)
                 {
-                    // Create new StringContent for each request
-                    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-                    
                     var response = await _httpClient.PostAsync(url, content);
 
                     if (response.IsSuccessStatusCode)
